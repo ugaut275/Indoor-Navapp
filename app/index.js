@@ -1,14 +1,14 @@
 import { StyleSheet, Text, View } from 'react-native'
 import React from 'react'
-import LoginView from './views/LoginPage'
-const Home = () => {
+import LoginPage from './views/LoginPage'
+const index = () => {
   return (
     <View>
-      <LoginView />
+      <LoginPage />
     </View>
   )
 }
 
-export default Home
+export default index
 
 const styles = StyleSheet.create({})

@@ -1,40 +1,89 @@
-import React from "react";
-import { View, Text, TextInput, Pressable } from "react-native";
-import { Link } from "expo-router";
+import { View, Text, TextInput, Button, ScrollView, TouchableOpacity, KeyboardAvoidingView  } from 'react-native'
+import React, { useState } from 'react'
 
-export default function LoginView() {
-  return (
-    <View className="flex-1 items-center justify-center bg-gray-100">
-      <View className="bg-white p-10 rounded-2xl shadow-md w-80">
-        <Text className="text-3xl font-semibold mb-8 text-gray-800 text-center">
-          Gallery App
-        </Text>
+const LoginPage = () => {
 
-        <View className="flex flex-col gap-5 mb-4">
-          <TextInput
-            placeholder="Email"
-            className="px-5 py-4 border-2 border-gray-100 rounded-xl text-base font-normal w-full bg-gray-50 text-gray-800"
-            placeholderTextColor="#888"
-          />
-          <TextInput
-            placeholder="Password"
-            secureTextEntry
-            className="px-5 py-4 border-2 border-gray-100 rounded-xl text-base font-normal w-full bg-gray-50 text-gray-800"
-            placeholderTextColor="#888"
-          />
-          <Link href="/gallery" asChild>
-            <Pressable className="bg-primary py-4 rounded-xl active:opacity-80">
-              <Text className="text-white text-center font-semibold text-base">
-                Login
-              </Text>
-            </Pressable>
-          </Link>
-        </View>
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
 
-        <Text className="text-xs text-gray-500 mt-6 font-light text-center">
-          Photo by who
-        </Text>
-      </View>
-    </View>
-  );
+    return (
+        <KeyboardAvoidingView>
+        <ScrollView style={{ height: '100%', backgroundColor: '#ffffffff' }}
+            contentContainerStyle={{
+                flex: 1,
+                justifyContent: 'center',
+                alignItems: 'center',
+                padding: 32,
+                backgroundColor: 'rgba(255, 255, 255, 0.4)',
+                style: 'italic',
+            
+             
+            }}
+        >
+            <Text
+                style={{
+                    fontSize: 36,
+                    color: '#57575aff',
+                    fontWeight: '700',
+                    marginBottom: 32,
+                    letterSpacing: 1,
+                }}
+            >
+                Login Page
+            </Text>
+            <TextInput
+                placeholder='Email'
+                placeholderTextColor="#a59f9fff"
+                value={email}
+                onChangeText={setEmail}
+                style={{
+                    width: 260,
+                    paddingVertical: 14,
+                    paddingHorizontal: 16,
+                    marginBottom: 18,
+                    backgroundColor: '#fff',
+                    borderColor: '#c9c9c9',
+                    borderWidth: 1,
+                    borderRadius: 12,
+                    fontSize: 16,
+                    color: '#22223b',
+                    elevation: 2,
+           
+                }}
+            />
+            <TextInput
+                placeholder='Password'
+                placeholderTextColor="#adb5bd"
+                value={password}
+                onChangeText={setPassword}
+                secureTextEntry
+                style={{width: 260,paddingVertical: 14,paddingHorizontal: 16,marginBottom: 24, backgroundColor: '#fff',borderColor: '#c9c9c9',borderWidth: 1,borderRadius: 12,fontSize: 16,color: '#22223b',elevation: 2,
+                }}
+            />
+            <TouchableOpacity onPress={() => forgotpassword()}>
+                <Text style={{ color: '#2164a3ff', marginBottom: 12 }}>Create an Account</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => forgotpassword()}>
+                <Text style={{ color: '#2164a3ff', marginBottom: 12 }}>Forgot Password?</Text>
+            </TouchableOpacity>
+            <View style={{ width: 260, borderRadius: 12, overflow: 'hidden', marginBottom: 12 }}>
+                <Button
+                    title='Login'
+                    onPress={() => console.log('Email:', email, 'Password:', password)}
+                />
+            </View>
+        </ScrollView>
+        </KeyboardAvoidingView>
+    )
 }
+
+
+const forgotpassword = () => {
+    console.log('Forgot Password Pressed');
+}
+const authenticateUser = (email, password) => {
+    // Add authentication logic here
+    console.log('Authenticating user with email:', email, 'and password:', password);
+}
+
+export default LoginPage
