@@ -2,6 +2,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import LoginPage from './views/LoginPage';
 import SignUpScreen from './views/signUp';
 import AccountView from './views/accountView';
+import MapView from './views/MapView';
 const Stack = createNativeStackNavigator();
 
 function App() {
@@ -29,6 +30,15 @@ function App() {
                     headerStyle: { backgroundColor: '#171a1fff' },
                     headerTintColor: '#ece6e6ff',
                 
+                }}
+            />
+            <Stack.Screen 
+                name="MapView" 
+                component={MapView}
+                options={{ 
+                    title: 'Navigation',
+                    headerStyle: { backgroundColor: '#171a1fff' },
+                    headerTintColor: '#ece6e6ff',
                 }}
             />
         </Stack.Navigator>
