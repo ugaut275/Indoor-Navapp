@@ -34,6 +34,14 @@ export default function RootLayout() {
                 }}
             />
             <Stack.Screen
+                name="views/PasswordRecovery"
+                options={{
+                    title: 'Password Recovery',
+                    headerStyle: { backgroundColor: colors.backgroundCard },
+                    headerTintColor: colors.primary,
+                }}
+            />
+            <Stack.Screen
                 name="views/accountView"
                 options={{
                     title: 'Profile',

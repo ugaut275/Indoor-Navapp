@@ -51,7 +51,7 @@ const LoginPage = () => {
     };
 
     const handleForgotPassword = () => {
-        Alert.alert('Forgot Password', 'Feature coming soon!');
+        router.push('/views/PasswordRecovery');
     };
 
     const handleCreateAccount = () => {
