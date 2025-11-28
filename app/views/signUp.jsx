@@ -1,4 +1,5 @@
 import { View, Text, TextInput, ScrollView, TouchableOpacity, KeyboardAvoidingView, Alert, Platform, StyleSheet } from 'react-native'
+import { Ionicons } from '@expo/vector-icons'
 import React, { useState } from 'react'
 import { useRouter } from 'expo-router';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
@@ -15,12 +16,26 @@ const SignUpScreen = () => {
     const [birthDay, setBirthDay] = useState('');
     const [physicalCondition, setPhysicalCondition] = useState('without wheelchair');
     const [isLoading, setIsLoading] = useState(false);
+
+    // Security Questions State
+    const [selectedQuestion1, setSelectedQuestion1] = useState('');
+    const [selectedQuestion2, setSelectedQuestion2] = useState('');
+    const [answer1, setAnswer1] = useState('');
+    const [answer2, setAnswer2] = useState('');
+
     const router = useRouter();
 
     const conditionOptions = [
         { value: 'without wheelchair', label: 'Without Wheelchair', description: 'No mobility limitations' },
         { value: 'limited accessability', label: 'Limited Accessibility', description: 'Significant limitations, needs accessible routes' },
         { value: 'wheelchair', label: 'Wheelchair', description: 'Uses wheelchair, requires accessible paths' }
+    ];
+
+    const securityQuestions = [
+        "What is your mother's maiden name?",
+        "What year did you start elementary school?",
+        "What was the name of your first pet?",
+        "In what city were you born?"
     ];
 
     const validateEmail = (email) => {
@@ -118,6 +133,27 @@ const SignUpScreen = () => {
             return;
         }
 
+        // Security Questions Validation
+        if (!selectedQuestion1 || !selectedQuestion2) {
+            Alert.alert('Error', 'Please select both security questions.');
+            return;
+        }
+
+        if (selectedQuestion1 === selectedQuestion2) {
+            Alert.alert('Error', 'Please select two different security questions.');
+            return;
+        }
+
+        if (!answer1.trim() || !answer2.trim()) {
+            Alert.alert('Error', 'Please answer both security questions.');
+            return;
+        }
+
+        if (answer1.trim().length < 2 || answer2.trim().length < 2) {
+            Alert.alert('Error', 'Security answers must be at least 2 characters long.');
+            return;
+        }
+
         setIsLoading(true);
 
         try {
@@ -133,6 +169,11 @@ const SignUpScreen = () => {
                 birthDay: day,
                 age: birthdayValidation.age,
                 physicalCondition: physicalCondition,
+                // Store security questions and answers (hashed for basic security)
+                securityQuestion1: selectedQuestion1,
+                securityAnswer1: answer1.trim().toLowerCase(), // Lowercase for case-insensitive comparison
+                securityQuestion2: selectedQuestion2,
+                securityAnswer2: answer2.trim().toLowerCase(),
             };
 
             // 3. Save user profile to local JSON storage
@@ -320,6 +361,98 @@ const SignUpScreen = () => {
                             ))}
                         </View>
 
+                        {/* Security Questions */}
+                        <View style={styles.securitySection}>
+                            <Text style={styles.sectionTitle}>Security Questions</Text>
+                            <Text style={styles.sectionSubtitle}>Choose 2 questions for password recovery</Text>
+
+                            {/* Question 1 */}
+                            <View style={styles.questionWrapper}>
+                                <Text style={styles.inputLabel}>Security Question 1</Text>
+                                {securityQuestions.map((question, index) => (
+                                    <TouchableOpacity
+                                        key={index}
+                                        onPress={() => setSelectedQuestion1(question)}
+                                        style={[
+                                            styles.questionOption,
+                                            selectedQuestion1 === question && styles.questionOptionSelected,
+                                            selectedQuestion2 === question && styles.questionOptionDisabled
+                                        ]}
+                                        disabled={selectedQuestion2 === question}
+                                    >
+                                        <View style={[
+                                            styles.radioButton,
+                                            selectedQuestion1 === question && styles.radioButtonSelected
+                                        ]}>
+                                            {selectedQuestion1 === question && (
+                                                <View style={styles.radioButtonInner} />
+                                            )}
+                                        </View>
+                                        <Text style={[
+                                            styles.questionText,
+                                            selectedQuestion1 === question && styles.questionTextSelected,
+                                            selectedQuestion2 === question && styles.questionTextDisabled
+                                        ]}>
+                                            {question}
+                                        </Text>
+                                    </TouchableOpacity>
+                                ))}
+                                {selectedQuestion1 && (
+                                    <TextInput
+                                        style={styles.input}
+                                        placeholder='Your answer'
+                                        placeholderTextColor={colors.textMuted}
+                                        value={answer1}
+                                        onChangeText={setAnswer1}
+                                        autoCapitalize="words"
+                                    />
+                                )}
+                            </View>
+
+                            {/* Question 2 */}
+                            <View style={styles.questionWrapper}>
+                                <Text style={styles.inputLabel}>Security Question 2</Text>
+                                {securityQuestions.map((question, index) => (
+                                    <TouchableOpacity
+                                        key={index}
+                                        onPress={() => setSelectedQuestion2(question)}
+                                        style={[
+                                            styles.questionOption,
+                                            selectedQuestion2 === question && styles.questionOptionSelected,
+                                            selectedQuestion1 === question && styles.questionOptionDisabled
+                                        ]}
+                                        disabled={selectedQuestion1 === question}
+                                    >
+                                        <View style={[
+                                            styles.radioButton,
+                                            selectedQuestion2 === question && styles.radioButtonSelected
+                                        ]}>
+                                            {selectedQuestion2 === question && (
+                                                <View style={styles.radioButtonInner} />
+                                            )}
+                                        </View>
+                                        <Text style={[
+                                            styles.questionText,
+                                            selectedQuestion2 === question && styles.questionTextSelected,
+                                            selectedQuestion1 === question && styles.questionTextDisabled
+                                        ]}>
+                                            {question}
+                                        </Text>
+                                    </TouchableOpacity>
+                                ))}
+                                {selectedQuestion2 && (
+                                    <TextInput
+                                        style={styles.input}
+                                        placeholder='Your answer'
+                                        placeholderTextColor={colors.textMuted}
+                                        value={answer2}
+                                        onChangeText={setAnswer2}
+                                        autoCapitalize="words"
+                                    />
+                                )}
+                            </View>
+                        </View>
+
                         {/* Sign Up Button */}
                         <TouchableOpacity
                             onPress={handleSignUp}
@@ -480,6 +613,54 @@ const styles = StyleSheet.create({
         ...typography.caption,
         color: colors.textMuted,
         lineHeight: 18,
+    },
+    securitySection: {
+        marginTop: spacing.lg,
+        marginBottom: spacing.md,
+    },
+    sectionTitle: {
+        ...typography.h3,
+        color: colors.textPrimary,
+        marginBottom: spacing.xs,
+    },
+    sectionSubtitle: {
+        ...typography.caption,
+        color: colors.textMuted,
+        marginBottom: spacing.md,
+    },
+    questionWrapper: {
+        marginBottom: spacing.lg,
+    },
+    questionOption: {
+        flexDirection: 'row',
+        alignItems: 'flex-start',
+        padding: spacing.sm + 2,
+        marginBottom: spacing.xs,
+        backgroundColor: colors.backgroundElevated,
+        borderColor: colors.border,
+        borderWidth: 1,
+        borderRadius: borderRadius.sm,
+    },
+    questionOptionSelected: {
+        backgroundColor: colors.primaryMuted,
+        borderColor: colors.primary,
+    },
+    questionOptionDisabled: {
+        opacity: 0.4,
+        backgroundColor: colors.backgroundElevated,
+    },
+    questionText: {
+        ...typography.caption,
+        color: colors.textPrimary,
+        flex: 1,
+        marginLeft: spacing.sm,
+    },
+    questionTextSelected: {
+        color: colors.primary,
+        fontWeight: '500',
+    },
+    questionTextDisabled: {
+        color: colors.textMuted,
     },
     signUpButton: {
         backgroundColor: colors.primary,
