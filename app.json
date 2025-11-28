@@ -4,6 +4,7 @@
     "slug": "MyNavApp",
     "version": "1.0.0",
     "orientation": "portrait",
+    "scheme": "mynavapp",
     "userInterfaceStyle": "light",
     "ios": {
       "supportsTablet": true

@@ -1,9 +1,10 @@
-import { View, Text, TextInput, ScrollView, TouchableOpacity, KeyboardAvoidingView, Alert, Platform } from 'react-native'
+import { View, Text, TextInput, ScrollView, TouchableOpacity, KeyboardAvoidingView, Alert, Platform, StyleSheet } from 'react-native'
 import React, { useState } from 'react'
-import { useNavigation } from '@react-navigation/native';
+import { useRouter } from 'expo-router';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../../firebaseConfig.js';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { colors, shadows, typography, spacing, borderRadius } from '../../theme';
 
 const SignUpScreen = () => {
     const [email, setEmail] = useState('');
@@ -14,7 +15,7 @@ const SignUpScreen = () => {
     const [birthDay, setBirthDay] = useState('');
     const [physicalCondition, setPhysicalCondition] = useState('without wheelchair');
     const [isLoading, setIsLoading] = useState(false);
-    const navigation = useNavigation();
+    const router = useRouter();
 
     const conditionOptions = [
         { value: 'without wheelchair', label: 'Without Wheelchair', description: 'No mobility limitations' },
@@ -143,7 +144,7 @@ const SignUpScreen = () => {
                 Alert.alert('Success', 'Account created successfully!', [
                     { 
                         text: 'OK', 
-                        onPress: () => navigation.navigate('LoginPage', { user: userProfile }) 
+                        onPress: () => router.replace('/views/LoginPage') 
                     }
                 ]);
             } else {
@@ -168,7 +169,7 @@ const SignUpScreen = () => {
     };
 
     const handleLoginRedirect = () => {
-        navigation.navigate('LoginPage');
+        router.replace('/views/LoginPage');
     };
 
     const displayAge = () => {
@@ -188,243 +189,384 @@ const SignUpScreen = () => {
     return (
         <KeyboardAvoidingView 
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-            style={{ flex: 1 }}
+            style={styles.container}
         >
+            {/* Gradient Background Layers */}
+            <View style={styles.gradientLayer1} />
+            <View style={styles.gradientLayer2} />
+            <View style={styles.gradientLayer3} />
+            
             <ScrollView 
-                style={{ flex: 1, backgroundColor: '#ffffff' }}
-                contentContainerStyle={{
-                    flexGrow: 1,
-                    padding: 32,
-                }}
+                style={styles.scrollView}
+                contentContainerStyle={styles.scrollContent}
+                showsVerticalScrollIndicator={false}
             >
-                <Text
-                    style={{
-                        fontSize: 36,
-                        color: '#57575aff',
-                        fontWeight: '700',
-                        marginBottom: 32,
-                        letterSpacing: 1,
-                        textAlign: 'center',
-                    }}
-                >
-                    Create Account
-                </Text>
-
-                {/* Email */}
-                <TextInput
-                    placeholder='Email Address'
-                    placeholderTextColor="#a59f9fff"
-                    value={email}
-                    onChangeText={setEmail}
-                    autoCapitalize="none"
-                    keyboardType="email-address"
-                    style={{
-                        width: '100%',
-                        paddingVertical: 14,
-                        paddingHorizontal: 16,
-                        marginBottom: 18,
-                        backgroundColor: '#fff',
-                        borderColor: '#c9c9c9',
-                        borderWidth: 1,
-                        borderRadius: 12,
-                        fontSize: 16,
-                        color: '#22223b',
-                    }}
-                />
-
-                {/* Password */}
-                <TextInput
-                    placeholder='Password'
-                    placeholderTextColor="#a59f9fff"
-                    value={password}
-                    onChangeText={setPassword}
-                    secureTextEntry
-                    style={{
-                        width: '100%',
-                        paddingVertical: 14,
-                        paddingHorizontal: 16,
-                        marginBottom: 18,
-                        backgroundColor: '#fff',
-                        borderColor: '#c9c9c9',
-                        borderWidth: 1,
-                        borderRadius: 12,
-                        fontSize: 16,
-                        color: '#22223b',
-                    }}
-                />
-
-                {/* Full Name */}
-                <TextInput
-                    placeholder='Full Name'
-                    placeholderTextColor="#a59f9fff"
-                    value={fullName}
-                    onChangeText={setFullName}
-                    style={{
-                        width: '100%',
-                        paddingVertical: 14,
-                        paddingHorizontal: 16,
-                        marginBottom: 18,
-                        backgroundColor: '#fff',
-                        borderColor: '#c9c9c9',
-                        borderWidth: 1,
-                        borderRadius: 12,
-                        fontSize: 16,
-                        color: '#22223b',
-                    }}
-                />
-
-                {/* Birthday Section */}
-                <Text style={{ fontSize: 16, color: '#57575aff', marginBottom: 12, fontWeight: '600' }}>
-                    Birthday
-                </Text>
+                {/* Decorative Elements */}
+                <View style={styles.decorativeCircle1} />
+                <View style={styles.decorativeCircle2} />
                 
-                <View style={{ flexDirection: 'row', marginBottom: 18, gap: 12 }}>
-                    <TextInput
-                        placeholder='Year'
-                        placeholderTextColor="#a59f9fff"
-                        value={birthYear}
-                        onChangeText={setBirthYear}
-                        keyboardType="numeric"
-                        maxLength={4}
-                        style={{
-                            flex: 1,
-                            paddingVertical: 14,
-                            paddingHorizontal: 16,
-                            backgroundColor: '#fff',
-                            borderColor: '#c9c9c9',
-                            borderWidth: 1,
-                            borderRadius: 12,
-                            fontSize: 16,
-                            color: '#22223b',
-                            textAlign: 'center',
-                        }}
-                    />
-                    <TextInput
-                        placeholder='Month'
-                        placeholderTextColor="#a59f9fff"
-                        value={birthMonth}
-                        onChangeText={setBirthMonth}
-                        keyboardType="numeric"
-                        maxLength={2}
-                        style={{
-                            flex: 1,
-                            paddingVertical: 14,
-                            paddingHorizontal: 16,
-                            backgroundColor: '#fff',
-                            borderColor: '#c9c9c9',
-                            borderWidth: 1,
-                            borderRadius: 12,
-                            fontSize: 16,
-                            color: '#22223b',
-                            textAlign: 'center',
-                        }}
-                    />
-                    <TextInput
-                        placeholder='Day'
-                        placeholderTextColor="#a59f9fff"
-                        value={birthDay}
-                        onChangeText={setBirthDay}
-                        keyboardType="numeric"
-                        maxLength={2}
-                        style={{
-                            flex: 1,
-                            paddingVertical: 14,
-                            paddingHorizontal: 16,
-                            backgroundColor: '#fff',
-                            borderColor: '#c9c9c9',
-                            borderWidth: 1,
-                            borderRadius: 12,
-                            fontSize: 16,
-                            color: '#22223b',
-                            textAlign: 'center',
-                        }}
-                    />
-                </View>
+                <View style={styles.contentContainer}>
+                    <View style={styles.titleContainer}>
+                        <Text style={styles.title}>Create Account</Text>
+                        <Text style={styles.subtitle}>Join us and start navigating</Text>
+                    </View>
 
-                {/* Age Display */}
-                <Text style={{ 
-                    fontSize: 14, 
-                    color: '#2164a3ff', 
-                    marginBottom: 18, 
-                    textAlign: 'center',
-                    fontStyle: 'italic'
-                }}>
-                    {displayAge()}
-                </Text>
+                    <View style={styles.formContainer}>
+                        {/* Email */}
+                        <View style={styles.inputWrapper}>
+                            <Text style={styles.inputLabel}>Email Address</Text>
+                            <TextInput
+                                placeholder='Enter your email'
+                                placeholderTextColor={colors.gray400}
+                                value={email}
+                                onChangeText={setEmail}
+                                autoCapitalize="none"
+                                keyboardType="email-address"
+                                style={styles.input}
+                            />
+                        </View>
 
-                {/* Physical Condition */}
-                <Text style={{ fontSize: 16, color: '#57575aff', marginBottom: 12, fontWeight: '600' }}>
-                    Physical Condition
-                </Text>
-                
-                {conditionOptions.map((condition) => (
-                    <TouchableOpacity
-                        key={condition.value}
-                        onPress={() => setPhysicalCondition(condition.value)}
-                        style={{
-                            flexDirection: 'row',
-                            alignItems: 'flex-start',
-                            padding: 16,
-                            marginBottom: 8,
-                            backgroundColor: physicalCondition === condition.value ? '#e8f4ff' : '#fff',
-                            borderColor: physicalCondition === condition.value ? '#007AFF' : '#c9c9c9',
-                            borderWidth: 2,
-                            borderRadius: 12,
-                        }}
-                    >
-                        <View style={{
-                            width: 20,
-                            height: 20,
-                            borderRadius: 10,
-                            borderWidth: 2,
-                            borderColor: physicalCondition === condition.value ? '#007AFF' : '#c9c9c9',
-                            backgroundColor: physicalCondition === condition.value ? '#007AFF' : 'transparent',
-                            marginRight: 12,
-                            marginTop: 2,
-                        }} />
-                        <View style={{ flex: 1 }}>
-                            <Text style={{ fontSize: 16, fontWeight: '600', color: '#22223b', marginBottom: 4 }}>
-                                {condition.label}
-                            </Text>
-                            <Text style={{ fontSize: 14, color: '#666', lineHeight: 18 }}>
-                                {condition.description}
+                        {/* Password */}
+                        <View style={styles.inputWrapper}>
+                            <Text style={styles.inputLabel}>Password</Text>
+                            <TextInput
+                                placeholder='Create a password'
+                                placeholderTextColor={colors.gray400}
+                                value={password}
+                                onChangeText={setPassword}
+                                secureTextEntry
+                                style={styles.input}
+                            />
+                        </View>
+
+                        {/* Full Name */}
+                        <View style={styles.inputWrapper}>
+                            <Text style={styles.inputLabel}>Full Name</Text>
+                            <TextInput
+                                placeholder='Enter your full name'
+                                placeholderTextColor={colors.gray400}
+                                value={fullName}
+                                onChangeText={setFullName}
+                                style={styles.input}
+                            />
+                        </View>
+
+                        {/* Birthday Section */}
+                        <View style={styles.inputWrapper}>
+                            <Text style={styles.inputLabel}>Birthday</Text>
+                            <View style={styles.birthdayRow}>
+                                <View style={styles.birthdayInputContainer}>
+                                    <TextInput
+                                        placeholder='Year'
+                                        placeholderTextColor={colors.gray400}
+                                        value={birthYear}
+                                        onChangeText={setBirthYear}
+                                        keyboardType="numeric"
+                                        maxLength={4}
+                                        style={styles.birthdayInput}
+                                    />
+                                </View>
+                                <View style={styles.birthdayInputContainer}>
+                                    <TextInput
+                                        placeholder='Month'
+                                        placeholderTextColor={colors.gray400}
+                                        value={birthMonth}
+                                        onChangeText={setBirthMonth}
+                                        keyboardType="numeric"
+                                        maxLength={2}
+                                        style={styles.birthdayInput}
+                                    />
+                                </View>
+                                <View style={styles.birthdayInputContainer}>
+                                    <TextInput
+                                        placeholder='Day'
+                                        placeholderTextColor={colors.gray400}
+                                        value={birthDay}
+                                        onChangeText={setBirthDay}
+                                        keyboardType="numeric"
+                                        maxLength={2}
+                                        style={styles.birthdayInput}
+                                    />
+                                </View>
+                            </View>
+                            <Text style={styles.ageDisplay}>
+                                {displayAge()}
                             </Text>
                         </View>
-                    </TouchableOpacity>
-                ))}
 
-                {/* Sign Up Button */}
-                <TouchableOpacity
-                    onPress={handleSignUp}
-                    disabled={isLoading}
-                    style={{
-                        width: '100%',
-                        backgroundColor: isLoading ? '#ccc' : '#007AFF',
-                        paddingVertical: 14,
-                        borderRadius: 12,
-                        alignItems: 'center',
-                        marginTop: 24,
-                        marginBottom: 16,
-                    }}
-                >
-                    <Text style={{ color: 'white', fontSize: 16, fontWeight: '600' }}>
-                        {isLoading ? 'Creating Account...' : 'Create Account'}
-                    </Text>
-                </TouchableOpacity>
+                        {/* Physical Condition */}
+                        <View style={styles.inputWrapper}>
+                            <Text style={styles.inputLabel}>Physical Condition</Text>
+                            {conditionOptions.map((condition) => (
+                                <TouchableOpacity
+                                    key={condition.value}
+                                    onPress={() => setPhysicalCondition(condition.value)}
+                                    style={[
+                                        styles.conditionOption,
+                                        physicalCondition === condition.value && styles.conditionOptionSelected
+                                    ]}
+                                >
+                                    <View style={[
+                                        styles.radioButton,
+                                        physicalCondition === condition.value && styles.radioButtonSelected
+                                    ]}>
+                                        {physicalCondition === condition.value && (
+                                            <View style={styles.radioButtonInner} />
+                                        )}
+                                    </View>
+                                    <View style={styles.conditionContent}>
+                                        <Text style={[
+                                            styles.conditionLabel,
+                                            physicalCondition === condition.value && styles.conditionLabelSelected
+                                        ]}>
+                                            {condition.label}
+                                        </Text>
+                                        <Text style={styles.conditionDescription}>
+                                            {condition.description}
+                                        </Text>
+                                    </View>
+                                </TouchableOpacity>
+                            ))}
+                        </View>
 
-                {/* Login Redirect */}
-                <TouchableOpacity onPress={handleLoginRedirect}>
-                    <Text style={{ 
-                        color: '#2164a3ff', 
-                        textAlign: 'center', 
-                        fontSize: 16,
-                    }}>
-                        Already have an account? Sign In
-                    </Text>
-                </TouchableOpacity>
+                        {/* Sign Up Button */}
+                        <TouchableOpacity
+                            onPress={handleSignUp}
+                            disabled={isLoading}
+                            style={[styles.signUpButton, isLoading && styles.signUpButtonDisabled]}
+                        >
+                            <Text style={styles.signUpButtonText}>
+                                {isLoading ? 'Creating Account...' : 'Create Account'}
+                            </Text>
+                        </TouchableOpacity>
+
+                        {/* Login Redirect */}
+                        <TouchableOpacity onPress={handleLoginRedirect} style={styles.loginRedirectButton}>
+                            <Text style={styles.loginRedirectText}>
+                                Already have an account? Sign In
+                            </Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
             </ScrollView>
         </KeyboardAvoidingView>
     )
 }
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        position: 'relative',
+    },
+    gradientLayer1: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        height: '50%',
+        backgroundColor: colors.secondary,
+        opacity: 0.85,
+    },
+    gradientLayer2: {
+        position: 'absolute',
+        top: '15%',
+        left: -40,
+        width: 180,
+        height: 180,
+        borderRadius: 90,
+        backgroundColor: colors.accent3,
+        opacity: 0.6,
+    },
+    gradientLayer3: {
+        position: 'absolute',
+        bottom: '20%',
+        right: -60,
+        width: 220,
+        height: 220,
+        borderRadius: 110,
+        backgroundColor: colors.accent1,
+        opacity: 0.5,
+    },
+    scrollView: {
+        flex: 1,
+    },
+    scrollContent: {
+        flexGrow: 1,
+        padding: spacing.xl,
+        paddingTop: spacing.xxl,
+    },
+    decorativeCircle1: {
+        position: 'absolute',
+        top: 80,
+        right: -20,
+        width: 100,
+        height: 100,
+        borderRadius: 50,
+        backgroundColor: colors.accent4,
+        opacity: 0.3,
+    },
+    decorativeCircle2: {
+        position: 'absolute',
+        bottom: 200,
+        left: -30,
+        width: 120,
+        height: 120,
+        borderRadius: 60,
+        backgroundColor: colors.primary,
+        opacity: 0.25,
+    },
+    contentContainer: {
+        zIndex: 1,
+    },
+    titleContainer: {
+        marginBottom: spacing.xl,
+        alignItems: 'center',
+    },
+    title: {
+        ...typography.h1,
+        color: colors.white,
+        marginBottom: spacing.sm,
+        textAlign: 'center',
+    },
+    subtitle: {
+        ...typography.body,
+        color: colors.gray100,
+        textAlign: 'center',
+        opacity: 0.9,
+    },
+    formContainer: {
+        backgroundColor: 'rgba(255, 255, 255, 0.95)',
+        borderRadius: borderRadius.xl,
+        padding: spacing.xl,
+        ...shadows.large,
+    },
+    inputWrapper: {
+        marginBottom: spacing.lg,
+    },
+    inputLabel: {
+        ...typography.caption,
+        color: colors.textPrimary,
+        fontWeight: '600',
+        marginBottom: spacing.sm,
+        marginLeft: spacing.xs,
+    },
+    input: {
+        backgroundColor: colors.white,
+        borderRadius: borderRadius.md,
+        paddingVertical: spacing.md,
+        paddingHorizontal: spacing.lg,
+        fontSize: 16,
+        color: colors.textPrimary,
+        borderWidth: 2,
+        borderColor: colors.gray200,
+        ...shadows.small,
+    },
+    birthdayRow: {
+        flexDirection: 'row',
+        gap: spacing.sm,
+    },
+    birthdayInputContainer: {
+        flex: 1,
+    },
+    birthdayInput: {
+        backgroundColor: colors.white,
+        borderRadius: borderRadius.md,
+        paddingVertical: spacing.md,
+        paddingHorizontal: spacing.sm,
+        fontSize: 16,
+        color: colors.textPrimary,
+        borderWidth: 2,
+        borderColor: colors.gray200,
+        textAlign: 'center',
+        ...shadows.small,
+    },
+    ageDisplay: {
+        ...typography.caption,
+        color: colors.primary,
+        textAlign: 'center',
+        marginTop: spacing.sm,
+        fontStyle: 'italic',
+        fontWeight: '600',
+    },
+    conditionOption: {
+        flexDirection: 'row',
+        alignItems: 'flex-start',
+        padding: spacing.md,
+        marginBottom: spacing.sm,
+        backgroundColor: colors.white,
+        borderColor: colors.gray300,
+        borderWidth: 2,
+        borderRadius: borderRadius.md,
+    },
+    conditionOptionSelected: {
+        backgroundColor: colors.primaryLight + '15',
+        borderColor: colors.primary,
+    },
+    radioButton: {
+        width: 22,
+        height: 22,
+        borderRadius: 11,
+        borderWidth: 2,
+        borderColor: colors.gray300,
+        backgroundColor: colors.white,
+        marginRight: spacing.md,
+        marginTop: 2,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    radioButtonSelected: {
+        borderColor: colors.primary,
+        backgroundColor: colors.primary,
+    },
+    radioButtonInner: {
+        width: 10,
+        height: 10,
+        borderRadius: 5,
+        backgroundColor: colors.white,
+    },
+    conditionContent: {
+        flex: 1,
+    },
+    conditionLabel: {
+        ...typography.bodyBold,
+        color: colors.textPrimary,
+        marginBottom: spacing.xs,
+    },
+    conditionLabelSelected: {
+        color: colors.primary,
+    },
+    conditionDescription: {
+        ...typography.caption,
+        color: colors.textSecondary,
+        lineHeight: 18,
+    },
+    signUpButton: {
+        backgroundColor: colors.secondary,
+        borderRadius: borderRadius.md,
+        paddingVertical: spacing.md + 4,
+        alignItems: 'center',
+        marginTop: spacing.md,
+        marginBottom: spacing.md,
+        ...shadows.medium,
+    },
+    signUpButtonDisabled: {
+        backgroundColor: colors.gray400,
+        opacity: 0.6,
+    },
+    signUpButtonText: {
+        ...typography.bodyBold,
+        color: colors.white,
+        fontSize: 18,
+    },
+    loginRedirectButton: {
+        paddingVertical: spacing.sm,
+    },
+    loginRedirectText: {
+        ...typography.body,
+        color: colors.primary,
+        textAlign: 'center',
+        fontWeight: '600',
+    },
+});
 
 export default SignUpScreen;
