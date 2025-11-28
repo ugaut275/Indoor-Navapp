@@ -5,6 +5,7 @@ import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../../firebaseConfig.js';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { colors, shadows, typography, spacing, borderRadius } from '../../theme';
+import { Ionicons } from '@expo/vector-icons';
 
 const AccountView = () => {
     const [userProfile, setUserProfile] = useState(null);
@@ -42,7 +43,7 @@ const AccountView = () => {
     if (!userProfile) {
         return (
             <View style={styles.errorContainer}>
-                <Text style={styles.errorIcon}>😕</Text>
+                <Ionicons name="alert-circle-outline" size={64} color={colors.textMuted} />
                 <Text style={styles.errorText}>No profile data available</Text>
             </View>
         );
@@ -50,10 +51,6 @@ const AccountView = () => {
 
     return (
         <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-            {/* Decorative Background */}
-            <View style={styles.decorativeCircle1} />
-            <View style={styles.decorativeCircle2} />
-            
             {/* Profile Header */}
             <View style={styles.profileHeader}>
                 <View style={styles.profileImageContainer}>
@@ -82,8 +79,8 @@ const AccountView = () => {
                 
                 {/* Email Field */}
                 <View style={styles.infoRow}>
-                    <View style={[styles.iconContainer, { backgroundColor: colors.primary + '20' }]}>
-                        <Text style={styles.icon}>📧</Text>
+                    <View style={styles.iconContainer}>
+                        <Ionicons name="mail-outline" size={22} color={colors.primary} />
                     </View>
                     <View style={styles.infoContent}>
                         <Text style={styles.infoLabel}>Email</Text>
@@ -94,8 +91,8 @@ const AccountView = () => {
                 {/* Phone Field */}
                 {userProfile.phone && (
                     <View style={styles.infoRow}>
-                        <View style={[styles.iconContainer, { backgroundColor: colors.accent2 + '20' }]}>
-                            <Text style={styles.icon}>📱</Text>
+                        <View style={styles.iconContainer}>
+                            <Ionicons name="call-outline" size={22} color={colors.accent2} />
                         </View>
                         <View style={styles.infoContent}>
                             <Text style={styles.infoLabel}>Phone</Text>
@@ -106,8 +103,8 @@ const AccountView = () => {
 
                 {/* Age Field */}
                 <View style={styles.infoRow}>
-                    <View style={[styles.iconContainer, { backgroundColor: colors.accent1 + '20' }]}>
-                        <Text style={styles.icon}>🎂</Text>
+                    <View style={styles.iconContainer}>
+                        <Ionicons name="calendar-outline" size={22} color={colors.accent1} />
                     </View>
                     <View style={styles.infoContent}>
                         <Text style={styles.infoLabel}>Age</Text>
@@ -117,8 +114,8 @@ const AccountView = () => {
 
                 {/* Physical Condition Field */}
                 <View style={styles.infoRow}>
-                    <View style={[styles.iconContainer, { backgroundColor: colors.accent4 + '20' }]}>
-                        <Text style={styles.icon}>♿</Text>
+                    <View style={styles.iconContainer}>
+                        <Ionicons name="accessibility-outline" size={22} color={colors.accent4} />
                     </View>
                     <View style={styles.infoContent}>
                         <Text style={styles.infoLabel}>Physical Condition</Text>
@@ -130,8 +127,8 @@ const AccountView = () => {
 
                 {/* Birthday Field */}
                 <View style={[styles.infoRow, styles.infoRowLast]}>
-                    <View style={[styles.iconContainer, { backgroundColor: colors.secondary + '20' }]}>
-                        <Text style={styles.icon}>📅</Text>
+                    <View style={styles.iconContainer}>
+                        <Ionicons name="gift-outline" size={22} color={colors.secondary} />
                     </View>
                     <View style={styles.infoContent}>
                         <Text style={styles.infoLabel}>Birthday</Text>
@@ -144,11 +141,11 @@ const AccountView = () => {
 
             {/* Action Buttons */}
             <View style={styles.actionsContainer}>
-                <TouchableOpacity 
+                <TouchableOpacity
                     style={styles.actionButton}
                     onPress={() => router.push('/views/MapView')}
                 >
-                    <Text style={styles.actionButtonIcon}>🗺️</Text>
+                    <Ionicons name="navigate-outline" size={20} color={colors.background} style={{ marginRight: spacing.sm }} />
                     <Text style={styles.actionButtonText}>Start Navigation</Text>
                 </TouchableOpacity>
             </View>
@@ -159,34 +156,13 @@ const AccountView = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: colors.gray50,
-        position: 'relative',
-    },
-    decorativeCircle1: {
-        position: 'absolute',
-        top: 0,
-        right: -50,
-        width: 200,
-        height: 200,
-        borderRadius: 100,
-        backgroundColor: colors.primary,
-        opacity: 0.15,
-    },
-    decorativeCircle2: {
-        position: 'absolute',
-        top: 100,
-        left: -40,
-        width: 150,
-        height: 150,
-        borderRadius: 75,
-        backgroundColor: colors.secondary,
-        opacity: 0.12,
+        backgroundColor: colors.background,
     },
     loadingContainer: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: colors.gray50,
+        backgroundColor: colors.background,
     },
     loadingCircle: {
         width: 60,
@@ -205,78 +181,78 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: colors.gray50,
+        backgroundColor: colors.background,
         padding: spacing.xl,
-    },
-    errorIcon: {
-        fontSize: 60,
-        marginBottom: spacing.md,
     },
     errorText: {
         ...typography.body,
         color: colors.textSecondary,
         textAlign: 'center',
+        marginTop: spacing.md,
     },
     profileHeader: {
         alignItems: 'center',
-        backgroundColor: colors.primary,
+        backgroundColor: colors.backgroundCard,
         borderBottomLeftRadius: borderRadius.xl,
         borderBottomRightRadius: borderRadius.xl,
         paddingTop: spacing.xxl + 20,
         paddingBottom: spacing.xl,
         paddingHorizontal: spacing.xl,
-        position: 'relative',
-        overflow: 'hidden',
+        borderBottomWidth: 1,
+        borderBottomColor: colors.border,
     },
     profileImageContainer: {
         position: 'relative',
         marginBottom: spacing.md,
     },
     profileImage: {
-        width: 120,
-        height: 120,
-        borderRadius: 60,
+        width: 100,
+        height: 100,
+        borderRadius: 50,
     },
     profileImagePlaceholder: {
-        width: 120,
-        height: 120,
-        borderRadius: 60,
-        backgroundColor: colors.white,
+        width: 100,
+        height: 100,
+        borderRadius: 50,
+        backgroundColor: colors.primaryMuted,
         justifyContent: 'center',
         alignItems: 'center',
+        borderWidth: 2,
+        borderColor: colors.primary,
     },
     profileImageText: {
         ...typography.h1,
         color: colors.primary,
-        fontSize: 48,
+        fontSize: 40,
     },
     profileImageBorder: {
         position: 'absolute',
-        top: -4,
-        left: -4,
-        right: -4,
-        bottom: -4,
-        borderRadius: 64,
-        borderWidth: 4,
-        borderColor: colors.white,
+        top: -3,
+        left: -3,
+        right: -3,
+        bottom: -3,
+        borderRadius: 53,
+        borderWidth: 2,
+        borderColor: colors.borderAccent,
     },
     profileName: {
         ...typography.h2,
-        color: colors.white,
+        color: colors.textPrimary,
         marginBottom: spacing.xs,
     },
     profileSubtitle: {
         ...typography.caption,
-        color: colors.gray100,
-        opacity: 0.9,
+        color: colors.textMuted,
     },
     detailsCard: {
-        backgroundColor: colors.white,
-        borderRadius: borderRadius.xl,
+        backgroundColor: colors.backgroundCard,
+        borderRadius: borderRadius.lg,
         padding: spacing.xl,
         margin: spacing.xl,
         marginTop: spacing.lg,
-        ...shadows.large,
+        borderWidth: 1,
+        borderColor: colors.border,
+        ...shadows.medium,
     },
     cardTitle: {
         ...typography.h3,
@@ -288,40 +264,39 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         paddingVertical: spacing.md,
         borderBottomWidth: 1,
-        borderBottomColor: colors.gray200,
+        borderBottomColor: colors.border,
     },
     infoRowLast: {
         borderBottomWidth: 0,
     },
     iconContainer: {
-        width: 50,
-        height: 50,
-        borderRadius: 25,
+        width: 44,
+        height: 44,
+        borderRadius: 22,
+        backgroundColor: colors.backgroundElevated,
         justifyContent: 'center',
         alignItems: 'center',
         marginRight: spacing.md,
-    },
-    icon: {
-        fontSize: 24,
     },
     infoContent: {
         flex: 1,
     },
     infoLabel: {
         ...typography.caption,
-        color: colors.textSecondary,
+        color: colors.textMuted,
         marginBottom: spacing.xs,
     },
     infoValue: {
         ...typography.bodyBold,
         color: colors.textPrimary,
+        fontWeight: '500',
     },
     actionsContainer: {
         paddingHorizontal: spacing.xl,
         paddingBottom: spacing.xxl,
     },
     actionButton: {
-        backgroundColor: colors.secondary,
+        backgroundColor: colors.primary,
         borderRadius: borderRadius.md,
         paddingVertical: spacing.md + 4,
         paddingHorizontal: spacing.lg,
@@ -330,14 +305,11 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         ...shadows.medium,
     },
-    actionButtonIcon: {
-        fontSize: 20,
-        marginRight: spacing.sm,
-    },
     actionButtonText: {
         ...typography.bodyBold,
-        color: colors.white,
+        color: colors.background,
         fontSize: 16,
+        fontWeight: '600',
     },
 });
 
