@@ -6,46 +6,47 @@ export default function RootLayout() {
         <Stack
             screenOptions={{
                 headerStyle: {
-                    backgroundColor: colors.primary,
+                    backgroundColor: colors.backgroundCard,
                 },
-                headerTintColor: colors.white,
+                headerTintColor: colors.textPrimary,
                 headerTitleStyle: {
-                    fontWeight: '700',
-                    fontSize: 20,
+                    fontWeight: '600',
+                    fontSize: 18,
                 },
-                headerShadowVisible: true,
+                headerShadowVisible: false,
+                headerBackTitleVisible: false,
             }}
         >
-            <Stack.Screen 
+            <Stack.Screen
                 name="index"
                 options={{ headerShown: false }}
             />
-            <Stack.Screen 
+            <Stack.Screen
                 name="views/LoginPage"
                 options={{ headerShown: false }}
             />
-            <Stack.Screen 
+            <Stack.Screen
                 name="views/signUp"
-                options={{ 
+                options={{
                     title: 'Create Account',
-                    headerStyle: { backgroundColor: colors.secondary },
-                    headerTintColor: colors.white,
+                    headerStyle: { backgroundColor: colors.backgroundCard },
+                    headerTintColor: colors.primary,
                 }}
             />
-            <Stack.Screen 
+            <Stack.Screen
                 name="views/accountView"
-                options={{ 
+                options={{
                     title: 'Profile',
-                    headerStyle: { backgroundColor: colors.primary },
-                    headerTintColor: colors.white,
+                    headerStyle: { backgroundColor: colors.backgroundCard },
+                    headerTintColor: colors.primary,
                 }}
             />
-            <Stack.Screen 
+            <Stack.Screen
                 name="views/MapView"
-                options={{ 
+                options={{
                     title: 'Navigation',
-                    headerStyle: { backgroundColor: colors.primary },
-                    headerTintColor: colors.white,
+                    headerStyle: { backgroundColor: colors.backgroundCard },
+                    headerTintColor: colors.primary,
                 }}
             />
         </Stack>

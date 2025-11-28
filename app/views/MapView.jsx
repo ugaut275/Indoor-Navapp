@@ -2,6 +2,7 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ScrollView 
 import React, { useState } from 'react';
 import { useRouter } from 'expo-router';
 import { colors, shadows, typography, spacing, borderRadius } from '../../theme';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 
 const MapView = () => {
     const [startLocation, setStartLocation] = useState('');
@@ -17,14 +18,14 @@ const MapView = () => {
     const generateDirections = () => {
         // Sample directions - in a real app, this would come from a routing API
         const sampleDirections = [
-            { step: 1, instruction: 'Head north from your starting point', distance: '0 m', icon: '🚶' },
-            { step: 2, instruction: 'Turn right at the main corridor', distance: '25 m', icon: '➡️' },
-            { step: 3, instruction: 'Continue straight past the reception desk', distance: '50 m', icon: '⬆️' },
-            { step: 4, instruction: 'Take the elevator to floor 2', distance: '75 m', icon: '🛗' },
-            { step: 5, instruction: 'Exit elevator and turn left', distance: '100 m', icon: '⬅️' },
-            { step: 6, instruction: 'Walk straight for 30 meters', distance: '130 m', icon: '🚶' },
-            { step: 7, instruction: 'Turn right at the hallway intersection', distance: '160 m', icon: '➡️' },
-            { step: 8, instruction: 'Your destination is on the left', distance: '180 m', icon: '🎯' },
+            { step: 1, instruction: 'Head north from your starting point', distance: '0 m', icon: 'walk', iconType: 'ion' },
+            { step: 2, instruction: 'Turn right at the main corridor', distance: '25 m', icon: 'arrow-forward', iconType: 'ion' },
+            { step: 3, instruction: 'Continue straight past the reception desk', distance: '50 m', icon: 'arrow-up', iconType: 'ion' },
+            { step: 4, instruction: 'Take the elevator to floor 2', distance: '75 m', icon: 'elevator', iconType: 'mci' },
+            { step: 5, instruction: 'Exit elevator and turn left', distance: '100 m', icon: 'arrow-back', iconType: 'ion' },
+            { step: 6, instruction: 'Walk straight for 30 meters', distance: '130 m', icon: 'walk', iconType: 'ion' },
+            { step: 7, instruction: 'Turn right at the hallway intersection', distance: '160 m', icon: 'arrow-forward', iconType: 'ion' },
+            { step: 8, instruction: 'Your destination is on the left', distance: '180 m', icon: 'location', iconType: 'ion' },
         ];
         return sampleDirections;
     };
@@ -51,20 +52,15 @@ const MapView = () => {
 
     return (
         <View style={styles.container}>
-            {/* Decorative Background Elements */}
-            <View style={styles.decorativeCircle1} />
-            <View style={styles.decorativeCircle2} />
-            <View style={styles.decorativeCircle3} />
-            
             {/* Map Container */}
             <View style={styles.mapContainer}>
                 <View style={styles.mapContent}>
                     <View style={styles.mapIconContainer}>
-                        <Text style={styles.mapIcon}>🗺️</Text>
+                        <Ionicons name="map-outline" size={56} color={colors.primary} />
                     </View>
                     <Text style={styles.placeholderText}>Interactive Map</Text>
                     <Text style={styles.placeholderSubtext}>
-                        {startLocation && destination 
+                        {startLocation && destination
                             ? `Route from ${startLocation} to ${destination}`
                             : 'Your navigation will appear here'
                         }
@@ -86,13 +82,13 @@ const MapView = () => {
                 {/* Start Location Input */}
                 <View style={styles.inputContainer}>
                     <View style={styles.inputLabelContainer}>
-                        <Text style={styles.inputIcon}>📍</Text>
+                        <Ionicons name="location-outline" size={20} color={colors.primary} style={{ marginRight: spacing.sm }} />
                         <Text style={styles.inputLabel}>Start Location</Text>
                     </View>
                     <TextInput
                         style={styles.input}
                         placeholder="Where are you now?"
-                        placeholderTextColor={colors.gray400}
+                        placeholderTextColor={colors.textMuted}
                         value={startLocation}
                         onChangeText={setStartLocation}
                     />
@@ -101,13 +97,13 @@ const MapView = () => {
                 {/* Destination Input */}
                 <View style={styles.inputContainer}>
                     <View style={styles.inputLabelContainer}>
-                        <Text style={styles.inputIcon}>🎯</Text>
+                        <Ionicons name="navigate-outline" size={20} color={colors.accent2} style={{ marginRight: spacing.sm }} />
                         <Text style={styles.inputLabel}>Destination</Text>
                     </View>
                     <TextInput
                         style={styles.input}
                         placeholder="Where do you want to go?"
-                        placeholderTextColor={colors.gray400}
+                        placeholderTextColor={colors.textMuted}
                         value={destination}
                         onChangeText={setDestination}
                     />
@@ -123,7 +119,13 @@ const MapView = () => {
                             style={[styles.toggleButton, avoidStairs && styles.toggleButtonActive]}
                             onPress={() => setAvoidStairs(!avoidStairs)}
                         >
-                            <Text style={styles.toggleIcon}>🚫</Text>
+                            <View style={styles.toggleIconContainer}>
+                                <MaterialCommunityIcons
+                                    name="stairs"
+                                    size={22}
+                                    color={avoidStairs ? colors.primary : colors.textMuted}
+                                />
+                            </View>
                             <View style={styles.toggleContent}>
                                 <Text style={[styles.toggleLabel, avoidStairs && styles.toggleLabelActive]}>
                                     Avoid Stairs
@@ -141,7 +143,13 @@ const MapView = () => {
                             style={[styles.toggleButton, wheelchairFriendly && styles.toggleButtonActive]}
                             onPress={() => setWheelchairFriendly(!wheelchairFriendly)}
                         >
-                            <Text style={styles.toggleIcon}>♿</Text>
+                            <View style={styles.toggleIconContainer}>
+                                <Ionicons
+                                    name="accessibility-outline"
+                                    size={22}
+                                    color={wheelchairFriendly ? colors.primary : colors.textMuted}
+                                />
+                            </View>
                             <View style={styles.toggleContent}>
                                 <Text style={[styles.toggleLabel, wheelchairFriendly && styles.toggleLabelActive]}>
                                     Wheelchair Friendly
@@ -159,7 +167,13 @@ const MapView = () => {
                             style={[styles.toggleButton, elevatorOnly && styles.toggleButtonActive]}
                             onPress={() => setElevatorOnly(!elevatorOnly)}
                         >
-                            <Text style={styles.toggleIcon}>🛗</Text>
+                            <View style={styles.toggleIconContainer}>
+                                <MaterialCommunityIcons
+                                    name="elevator-passenger"
+                                    size={22}
+                                    color={elevatorOnly ? colors.primary : colors.textMuted}
+                                />
+                            </View>
                             <View style={styles.toggleContent}>
                                 <Text style={[styles.toggleLabel, elevatorOnly && styles.toggleLabelActive]}>
                                     Elevator Only
@@ -176,20 +190,20 @@ const MapView = () => {
                 </View>
 
                 {/* Start Navigation Button */}
-                <TouchableOpacity 
+                <TouchableOpacity
                     style={styles.startButton}
                     onPress={handleStartNavigation}
                 >
+                    <Ionicons name="navigate" size={20} color={colors.background} style={{ marginRight: spacing.sm }} />
                     <Text style={styles.buttonText}>Start Navigation</Text>
-                    <Text style={styles.buttonIcon}>🚀</Text>
                 </TouchableOpacity>
 
                 {/* Back to Profile Button */}
-                <TouchableOpacity 
+                <TouchableOpacity
                     style={styles.backButton}
                     onPress={() => router.push('/views/accountView')}
                 >
-                    <Text style={styles.backButtonIcon}>👤</Text>
+                    <Ionicons name="person-outline" size={20} color={colors.textSecondary} style={{ marginRight: spacing.sm }} />
                     <Text style={styles.backButtonText}>Back to Profile</Text>
                 </TouchableOpacity>
 
@@ -197,16 +211,19 @@ const MapView = () => {
                 {showDirections && directions.length > 0 && (
                     <View style={styles.directionsPanel}>
                         <View style={styles.directionsHeader}>
-                            <Text style={styles.directionsTitle}>📋 Turn-by-Turn Directions</Text>
-                            <TouchableOpacity 
+                            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                <Ionicons name="list-outline" size={20} color={colors.primary} style={{ marginRight: spacing.sm }} />
+                                <Text style={styles.directionsTitle}>Turn-by-Turn Directions</Text>
+                            </View>
+                            <TouchableOpacity
                                 onPress={() => setShowDirections(false)}
                                 style={styles.closeButton}
                             >
-                                <Text style={styles.closeButtonText}>✕</Text>
+                                <Ionicons name="close" size={20} color={colors.textMuted} />
                             </TouchableOpacity>
                         </View>
-                        
-                        <ScrollView 
+
+                        <ScrollView
                             style={styles.directionsList}
                             showsVerticalScrollIndicator={false}
                         >
@@ -217,7 +234,11 @@ const MapView = () => {
                                     </View>
                                     <View style={styles.stepContent}>
                                         <View style={styles.stepHeader}>
-                                            <Text style={styles.stepIcon}>{direction.icon}</Text>
+                                            {direction.iconType === 'ion' ? (
+                                                <Ionicons name={direction.icon} size={18} color={colors.primary} style={{ marginRight: spacing.sm }} />
+                                            ) : (
+                                                <MaterialCommunityIcons name={direction.icon} size={18} color={colors.primary} style={{ marginRight: spacing.sm }} />
+                                            )}
                                             <Text style={styles.stepDistance}>{direction.distance}</Text>
                                         </View>
                                         <Text style={styles.stepInstruction}>{direction.instruction}</Text>
@@ -241,79 +262,42 @@ const MapView = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: colors.gradientStart,
-        position: 'relative',
-    },
-    decorativeCircle1: {
-        position: 'absolute',
-        top: 50,
-        right: -30,
-        width: 150,
-        height: 150,
-        borderRadius: 75,
-        backgroundColor: colors.accent3,
-        opacity: 0.3,
-    },
-    decorativeCircle2: {
-        position: 'absolute',
-        top: 150,
-        left: -40,
-        width: 120,
-        height: 120,
-        borderRadius: 60,
-        backgroundColor: colors.accent4,
-        opacity: 0.25,
-    },
-    decorativeCircle3: {
-        position: 'absolute',
-        top: 250,
-        right: 50,
-        width: 80,
-        height: 80,
-        borderRadius: 40,
-        backgroundColor: colors.secondary,
-        opacity: 0.2,
+        backgroundColor: colors.background,
     },
     mapContainer: {
-        height: 300,
-        backgroundColor: colors.gray800,
+        height: 250,
+        backgroundColor: colors.backgroundCard,
         justifyContent: 'center',
         alignItems: 'center',
-        position: 'relative',
-        overflow: 'hidden',
+        borderBottomWidth: 1,
+        borderBottomColor: colors.border,
     },
     mapContent: {
         alignItems: 'center',
-        zIndex: 1,
     },
     mapIconContainer: {
-        width: 120,
-        height: 120,
-        borderRadius: 60,
-        backgroundColor: 'rgba(255, 255, 255, 0.1)',
+        width: 100,
+        height: 100,
+        borderRadius: 50,
+        backgroundColor: colors.primaryMuted,
         justifyContent: 'center',
         alignItems: 'center',
         marginBottom: spacing.md,
-        ...shadows.medium,
-    },
-    mapIcon: {
-        fontSize: 60,
+        borderWidth: 2,
+        borderColor: colors.primary,
     },
     placeholderText: {
         ...typography.h3,
-        color: colors.white,
+        color: colors.textPrimary,
         marginBottom: spacing.xs,
     },
     placeholderSubtext: {
-        ...typography.body,
-        color: colors.gray300,
+        ...typography.caption,
+        color: colors.textMuted,
     },
     controlsContainer: {
         flex: 1,
-        backgroundColor: 'rgba(255, 255, 255, 0.98)',
-        borderTopLeftRadius: borderRadius.xl,
-        borderTopRightRadius: borderRadius.xl,
-        ...shadows.large,
+        backgroundColor: colors.background,
     },
     controlsContent: {
         padding: spacing.xl,
@@ -329,7 +313,7 @@ const styles = StyleSheet.create({
     },
     controlsSubtitle: {
         ...typography.caption,
-        color: colors.textSecondary,
+        color: colors.textMuted,
     },
     inputContainer: {
         marginBottom: spacing.lg,
@@ -339,25 +323,20 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         marginBottom: spacing.sm,
     },
-    inputIcon: {
-        fontSize: 20,
-        marginRight: spacing.sm,
-    },
     inputLabel: {
         ...typography.caption,
-        color: colors.textPrimary,
-        fontWeight: '600',
+        color: colors.textSecondary,
+        fontWeight: '500',
     },
     input: {
-        backgroundColor: colors.white,
+        backgroundColor: colors.backgroundElevated,
         borderRadius: borderRadius.md,
-        paddingVertical: spacing.md,
+        paddingVertical: spacing.md + 2,
         paddingHorizontal: spacing.lg,
         fontSize: 16,
         color: colors.textPrimary,
-        borderWidth: 2,
-        borderColor: colors.gray200,
-        ...shadows.small,
+        borderWidth: 1,
+        borderColor: colors.border,
     },
     startButton: {
         backgroundColor: colors.primary,
@@ -372,12 +351,9 @@ const styles = StyleSheet.create({
     },
     buttonText: {
         ...typography.bodyBold,
-        color: colors.white,
-        fontSize: 18,
-        marginRight: spacing.sm,
-    },
-    buttonIcon: {
-        fontSize: 20,
+        color: colors.background,
+        fontSize: 16,
+        fontWeight: '600',
     },
     accessibilitySection: {
         marginTop: spacing.md,
@@ -390,7 +366,7 @@ const styles = StyleSheet.create({
     },
     sectionSubtitle: {
         ...typography.caption,
-        color: colors.textSecondary,
+        color: colors.textMuted,
         marginBottom: spacing.md,
     },
     toggleContainer: {
@@ -399,19 +375,23 @@ const styles = StyleSheet.create({
     toggleButton: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: colors.white,
+        backgroundColor: colors.backgroundElevated,
         borderRadius: borderRadius.md,
         padding: spacing.md,
-        borderWidth: 2,
-        borderColor: colors.gray200,
-        ...shadows.small,
+        borderWidth: 1,
+        borderColor: colors.border,
     },
     toggleButtonActive: {
-        backgroundColor: colors.primaryLight + '15',
+        backgroundColor: colors.primaryMuted,
         borderColor: colors.primary,
     },
-    toggleIcon: {
-        fontSize: 24,
+    toggleIconContainer: {
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        backgroundColor: colors.backgroundCard,
+        justifyContent: 'center',
+        alignItems: 'center',
         marginRight: spacing.md,
     },
     toggleContent: {
@@ -421,19 +401,20 @@ const styles = StyleSheet.create({
         ...typography.bodyBold,
         color: colors.textPrimary,
         marginBottom: spacing.xs / 2,
+        fontWeight: '500',
     },
     toggleLabelActive: {
         color: colors.primary,
     },
     toggleDescription: {
         ...typography.caption,
-        color: colors.textSecondary,
+        color: colors.textMuted,
     },
     toggleSwitch: {
-        width: 50,
-        height: 28,
-        borderRadius: 14,
-        backgroundColor: colors.gray300,
+        width: 48,
+        height: 26,
+        borderRadius: 13,
+        backgroundColor: colors.border,
         justifyContent: 'center',
         paddingHorizontal: 2,
     },
@@ -441,18 +422,18 @@ const styles = StyleSheet.create({
         backgroundColor: colors.primary,
     },
     toggleSwitchDot: {
-        width: 24,
-        height: 24,
-        borderRadius: 12,
-        backgroundColor: colors.white,
+        width: 22,
+        height: 22,
+        borderRadius: 11,
+        backgroundColor: colors.backgroundCard,
         alignSelf: 'flex-end',
     },
     directionsPanel: {
         marginTop: spacing.lg,
-        backgroundColor: colors.white,
+        backgroundColor: colors.backgroundCard,
         borderRadius: borderRadius.lg,
-        borderWidth: 2,
-        borderColor: colors.primary,
+        borderWidth: 1,
+        borderColor: colors.borderAccent,
         ...shadows.medium,
         maxHeight: 400,
     },
@@ -462,26 +443,22 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         padding: spacing.md,
         borderBottomWidth: 1,
-        borderBottomColor: colors.gray200,
-        backgroundColor: colors.primaryLight + '10',
+        borderBottomColor: colors.border,
+        backgroundColor: colors.primaryMuted,
     },
     directionsTitle: {
         ...typography.bodyBold,
         color: colors.primary,
-        fontSize: 18,
+        fontSize: 16,
+        fontWeight: '600',
     },
     closeButton: {
-        width: 28,
-        height: 28,
-        borderRadius: 14,
-        backgroundColor: colors.gray200,
+        width: 32,
+        height: 32,
+        borderRadius: 16,
+        backgroundColor: colors.backgroundElevated,
         justifyContent: 'center',
         alignItems: 'center',
-    },
-    closeButtonText: {
-        fontSize: 16,
-        color: colors.textSecondary,
-        fontWeight: 'bold',
     },
     directionsList: {
         maxHeight: 300,
@@ -490,12 +467,12 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         padding: spacing.md,
         borderBottomWidth: 1,
-        borderBottomColor: colors.gray100,
+        borderBottomColor: colors.border,
     },
     stepNumberContainer: {
-        width: 36,
-        height: 36,
-        borderRadius: 18,
+        width: 32,
+        height: 32,
+        borderRadius: 16,
         backgroundColor: colors.primary,
         justifyContent: 'center',
         alignItems: 'center',
@@ -503,8 +480,9 @@ const styles = StyleSheet.create({
     },
     stepNumber: {
         ...typography.bodyBold,
-        color: colors.white,
+        color: colors.background,
         fontSize: 14,
+        fontWeight: '600',
     },
     stepContent: {
         flex: 1,
@@ -514,15 +492,11 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         marginBottom: spacing.xs,
     },
-    stepIcon: {
-        fontSize: 20,
-        marginRight: spacing.sm,
-    },
     stepDistance: {
         ...typography.caption,
         color: colors.primary,
-        fontWeight: '600',
-        backgroundColor: colors.primaryLight + '20',
+        fontWeight: '500',
+        backgroundColor: colors.primaryMuted,
         paddingHorizontal: spacing.sm,
         paddingVertical: 2,
         borderRadius: borderRadius.sm,
@@ -535,8 +509,8 @@ const styles = StyleSheet.create({
     directionsFooter: {
         padding: spacing.md,
         borderTopWidth: 1,
-        borderTopColor: colors.gray200,
-        backgroundColor: colors.gray50,
+        borderTopColor: colors.border,
+        backgroundColor: colors.backgroundElevated,
         borderBottomLeftRadius: borderRadius.lg,
         borderBottomRightRadius: borderRadius.lg,
     },
@@ -544,9 +518,10 @@ const styles = StyleSheet.create({
         ...typography.bodyBold,
         color: colors.primary,
         textAlign: 'center',
+        fontWeight: '600',
     },
     backButton: {
-        backgroundColor: colors.secondary,
+        backgroundColor: 'transparent',
         borderRadius: borderRadius.md,
         paddingVertical: spacing.md + 4,
         paddingHorizontal: spacing.lg,
@@ -554,16 +529,14 @@ const styles = StyleSheet.create({
         marginTop: spacing.md,
         flexDirection: 'row',
         justifyContent: 'center',
-        ...shadows.medium,
-    },
-    backButtonIcon: {
-        fontSize: 20,
-        marginRight: spacing.sm,
+        borderWidth: 1,
+        borderColor: colors.borderLight,
     },
     backButtonText: {
         ...typography.bodyBold,
-        color: colors.white,
+        color: colors.textSecondary,
         fontSize: 16,
+        fontWeight: '500',
     },
 });
 

@@ -187,24 +187,15 @@ const SignUpScreen = () => {
     };
 
     return (
-        <KeyboardAvoidingView 
+        <KeyboardAvoidingView
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
             style={styles.container}
         >
-            {/* Gradient Background Layers */}
-            <View style={styles.gradientLayer1} />
-            <View style={styles.gradientLayer2} />
-            <View style={styles.gradientLayer3} />
-            
-            <ScrollView 
+            <ScrollView
                 style={styles.scrollView}
                 contentContainerStyle={styles.scrollContent}
                 showsVerticalScrollIndicator={false}
             >
-                {/* Decorative Elements */}
-                <View style={styles.decorativeCircle1} />
-                <View style={styles.decorativeCircle2} />
-                
                 <View style={styles.contentContainer}>
                     <View style={styles.titleContainer}>
                         <Text style={styles.title}>Create Account</Text>
@@ -217,7 +208,7 @@ const SignUpScreen = () => {
                             <Text style={styles.inputLabel}>Email Address</Text>
                             <TextInput
                                 placeholder='Enter your email'
-                                placeholderTextColor={colors.gray400}
+                                placeholderTextColor={colors.textMuted}
                                 value={email}
                                 onChangeText={setEmail}
                                 autoCapitalize="none"
@@ -231,7 +222,7 @@ const SignUpScreen = () => {
                             <Text style={styles.inputLabel}>Password</Text>
                             <TextInput
                                 placeholder='Create a password'
-                                placeholderTextColor={colors.gray400}
+                                placeholderTextColor={colors.textMuted}
                                 value={password}
                                 onChangeText={setPassword}
                                 secureTextEntry
@@ -244,7 +235,7 @@ const SignUpScreen = () => {
                             <Text style={styles.inputLabel}>Full Name</Text>
                             <TextInput
                                 placeholder='Enter your full name'
-                                placeholderTextColor={colors.gray400}
+                                placeholderTextColor={colors.textMuted}
                                 value={fullName}
                                 onChangeText={setFullName}
                                 style={styles.input}
@@ -258,7 +249,7 @@ const SignUpScreen = () => {
                                 <View style={styles.birthdayInputContainer}>
                                     <TextInput
                                         placeholder='Year'
-                                        placeholderTextColor={colors.gray400}
+                                        placeholderTextColor={colors.textMuted}
                                         value={birthYear}
                                         onChangeText={setBirthYear}
                                         keyboardType="numeric"
@@ -269,7 +260,7 @@ const SignUpScreen = () => {
                                 <View style={styles.birthdayInputContainer}>
                                     <TextInput
                                         placeholder='Month'
-                                        placeholderTextColor={colors.gray400}
+                                        placeholderTextColor={colors.textMuted}
                                         value={birthMonth}
                                         onChangeText={setBirthMonth}
                                         keyboardType="numeric"
@@ -280,7 +271,7 @@ const SignUpScreen = () => {
                                 <View style={styles.birthdayInputContainer}>
                                     <TextInput
                                         placeholder='Day'
-                                        placeholderTextColor={colors.gray400}
+                                        placeholderTextColor={colors.textMuted}
                                         value={birthDay}
                                         onChangeText={setBirthDay}
                                         keyboardType="numeric"
@@ -356,36 +347,7 @@ const SignUpScreen = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        position: 'relative',
-    },
-    gradientLayer1: {
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        height: '50%',
-        backgroundColor: colors.secondary,
-        opacity: 0.85,
-    },
-    gradientLayer2: {
-        position: 'absolute',
-        top: '15%',
-        left: -40,
-        width: 180,
-        height: 180,
-        borderRadius: 90,
-        backgroundColor: colors.accent3,
-        opacity: 0.6,
-    },
-    gradientLayer3: {
-        position: 'absolute',
-        bottom: '20%',
-        right: -60,
-        width: 220,
-        height: 220,
-        borderRadius: 110,
-        backgroundColor: colors.accent1,
-        opacity: 0.5,
+        backgroundColor: colors.background,
     },
     scrollView: {
         flex: 1,
@@ -393,73 +355,53 @@ const styles = StyleSheet.create({
     scrollContent: {
         flexGrow: 1,
         padding: spacing.xl,
-        paddingTop: spacing.xxl,
-    },
-    decorativeCircle1: {
-        position: 'absolute',
-        top: 80,
-        right: -20,
-        width: 100,
-        height: 100,
-        borderRadius: 50,
-        backgroundColor: colors.accent4,
-        opacity: 0.3,
-    },
-    decorativeCircle2: {
-        position: 'absolute',
-        bottom: 200,
-        left: -30,
-        width: 120,
-        height: 120,
-        borderRadius: 60,
-        backgroundColor: colors.primary,
-        opacity: 0.25,
+        paddingTop: spacing.xxl + 20,
     },
     contentContainer: {
-        zIndex: 1,
+        maxWidth: 480,
+        width: '100%',
+        alignSelf: 'center',
     },
     titleContainer: {
         marginBottom: spacing.xl,
-        alignItems: 'center',
+        alignItems: 'flex-start',
     },
     title: {
         ...typography.h1,
-        color: colors.white,
+        color: colors.textPrimary,
         marginBottom: spacing.sm,
-        textAlign: 'center',
     },
     subtitle: {
         ...typography.body,
-        color: colors.gray100,
-        textAlign: 'center',
-        opacity: 0.9,
+        color: colors.textSecondary,
     },
     formContainer: {
-        backgroundColor: 'rgba(255, 255, 255, 0.95)',
-        borderRadius: borderRadius.xl,
+        backgroundColor: colors.backgroundCard,
+        borderRadius: borderRadius.lg,
         padding: spacing.xl,
-        ...shadows.large,
+        borderWidth: 1,
+        borderColor: colors.border,
+        ...shadows.medium,
     },
     inputWrapper: {
         marginBottom: spacing.lg,
     },
     inputLabel: {
         ...typography.caption,
-        color: colors.textPrimary,
-        fontWeight: '600',
+        color: colors.textSecondary,
+        fontWeight: '500',
         marginBottom: spacing.sm,
         marginLeft: spacing.xs,
     },
     input: {
-        backgroundColor: colors.white,
+        backgroundColor: colors.backgroundElevated,
         borderRadius: borderRadius.md,
-        paddingVertical: spacing.md,
+        paddingVertical: spacing.md + 2,
         paddingHorizontal: spacing.lg,
         fontSize: 16,
         color: colors.textPrimary,
-        borderWidth: 2,
-        borderColor: colors.gray200,
-        ...shadows.small,
+        borderWidth: 1,
+        borderColor: colors.border,
     },
     birthdayRow: {
         flexDirection: 'row',
@@ -469,46 +411,44 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     birthdayInput: {
-        backgroundColor: colors.white,
+        backgroundColor: colors.backgroundElevated,
         borderRadius: borderRadius.md,
-        paddingVertical: spacing.md,
+        paddingVertical: spacing.md + 2,
         paddingHorizontal: spacing.sm,
         fontSize: 16,
         color: colors.textPrimary,
-        borderWidth: 2,
-        borderColor: colors.gray200,
+        borderWidth: 1,
+        borderColor: colors.border,
         textAlign: 'center',
-        ...shadows.small,
     },
     ageDisplay: {
         ...typography.caption,
         color: colors.primary,
         textAlign: 'center',
         marginTop: spacing.sm,
-        fontStyle: 'italic',
-        fontWeight: '600',
+        fontWeight: '500',
     },
     conditionOption: {
         flexDirection: 'row',
         alignItems: 'flex-start',
         padding: spacing.md,
         marginBottom: spacing.sm,
-        backgroundColor: colors.white,
-        borderColor: colors.gray300,
-        borderWidth: 2,
+        backgroundColor: colors.backgroundElevated,
+        borderColor: colors.border,
+        borderWidth: 1,
         borderRadius: borderRadius.md,
     },
     conditionOptionSelected: {
-        backgroundColor: colors.primaryLight + '15',
+        backgroundColor: colors.primaryMuted,
         borderColor: colors.primary,
     },
     radioButton: {
-        width: 22,
-        height: 22,
-        borderRadius: 11,
+        width: 20,
+        height: 20,
+        borderRadius: 10,
         borderWidth: 2,
-        borderColor: colors.gray300,
-        backgroundColor: colors.white,
+        borderColor: colors.borderLight,
+        backgroundColor: colors.backgroundElevated,
         marginRight: spacing.md,
         marginTop: 2,
         justifyContent: 'center',
@@ -519,10 +459,10 @@ const styles = StyleSheet.create({
         backgroundColor: colors.primary,
     },
     radioButtonInner: {
-        width: 10,
-        height: 10,
-        borderRadius: 5,
-        backgroundColor: colors.white,
+        width: 8,
+        height: 8,
+        borderRadius: 4,
+        backgroundColor: colors.backgroundCard,
     },
     conditionContent: {
         flex: 1,
@@ -531,17 +471,18 @@ const styles = StyleSheet.create({
         ...typography.bodyBold,
         color: colors.textPrimary,
         marginBottom: spacing.xs,
+        fontWeight: '500',
     },
     conditionLabelSelected: {
         color: colors.primary,
     },
     conditionDescription: {
         ...typography.caption,
-        color: colors.textSecondary,
+        color: colors.textMuted,
         lineHeight: 18,
     },
     signUpButton: {
-        backgroundColor: colors.secondary,
+        backgroundColor: colors.primary,
         borderRadius: borderRadius.md,
         paddingVertical: spacing.md + 4,
         alignItems: 'center',
@@ -550,22 +491,23 @@ const styles = StyleSheet.create({
         ...shadows.medium,
     },
     signUpButtonDisabled: {
-        backgroundColor: colors.gray400,
-        opacity: 0.6,
+        backgroundColor: colors.gray700,
+        opacity: 0.5,
     },
     signUpButtonText: {
         ...typography.bodyBold,
-        color: colors.white,
-        fontSize: 18,
+        color: colors.background,
+        fontSize: 16,
+        fontWeight: '600',
     },
     loginRedirectButton: {
         paddingVertical: spacing.sm,
     },
     loginRedirectText: {
         ...typography.body,
-        color: colors.primary,
+        color: colors.textSecondary,
         textAlign: 'center',
-        fontWeight: '600',
+        fontWeight: '500',
     },
 });
 

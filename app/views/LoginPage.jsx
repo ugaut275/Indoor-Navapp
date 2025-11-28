@@ -60,30 +60,20 @@ const LoginPage = () => {
     };
 
     return (
-        <KeyboardAvoidingView 
+        <KeyboardAvoidingView
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
             style={styles.container}
         >
-            {/* Gradient Background Layers */}
-            <View style={styles.gradientLayer1} />
-            <View style={styles.gradientLayer2} />
-            <View style={styles.gradientLayer3} />
-            
-            <ScrollView 
+            <ScrollView
                 style={styles.scrollView}
                 contentContainerStyle={styles.scrollContent}
                 showsVerticalScrollIndicator={false}
             >
-                {/* Decorative Circles */}
-                <View style={styles.decorativeCircle1} />
-                <View style={styles.decorativeCircle2} />
-                <View style={styles.decorativeCircle3} />
-                
                 <View style={styles.contentContainer}>
                     {/* Logo/Title Section */}
                     <View style={styles.titleContainer}>
                         <Text style={styles.title}>Welcome Back</Text>
-                        <Text style={styles.subtitle}>Sign in to continue your journey</Text>
+                        <Text style={styles.subtitle}>Sign in to continue</Text>
                     </View>
 
                     {/* Form Container */}
@@ -92,7 +82,7 @@ const LoginPage = () => {
                             <Text style={styles.inputLabel}>Email</Text>
                             <TextInput
                                 placeholder='Enter your email'
-                                placeholderTextColor={colors.gray400}
+                                placeholderTextColor={colors.textMuted}
                                 value={email}
                                 onChangeText={setEmail}
                                 autoCapitalize="none"
@@ -105,7 +95,7 @@ const LoginPage = () => {
                             <Text style={styles.inputLabel}>Password</Text>
                             <TextInput
                                 placeholder='Enter your password'
-                                placeholderTextColor={colors.gray400}
+                                placeholderTextColor={colors.textMuted}
                                 value={password}
                                 onChangeText={setPassword}
                                 secureTextEntry
@@ -116,7 +106,7 @@ const LoginPage = () => {
                         <TouchableOpacity onPress={handleForgotPassword} style={styles.forgotPasswordButton}>
                             <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
                         </TouchableOpacity>
-                        
+
                         <TouchableOpacity
                             onPress={authenticateUser}
                             disabled={isLoading}
@@ -148,36 +138,7 @@ const LoginPage = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        position: 'relative',
-    },
-    gradientLayer1: {
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        height: '60%',
-        backgroundColor: colors.gradientStart,
-        opacity: 0.9,
-    },
-    gradientLayer2: {
-        position: 'absolute',
-        top: '20%',
-        right: -50,
-        width: 200,
-        height: 200,
-        borderRadius: 100,
-        backgroundColor: colors.secondary,
-        opacity: 0.6,
-    },
-    gradientLayer3: {
-        position: 'absolute',
-        bottom: '10%',
-        left: -50,
-        width: 250,
-        height: 250,
-        borderRadius: 125,
-        backgroundColor: colors.accent1,
-        opacity: 0.5,
+        backgroundColor: colors.background,
     },
     scrollView: {
         flex: 1,
@@ -185,83 +146,54 @@ const styles = StyleSheet.create({
     scrollContent: {
         flexGrow: 1,
         padding: spacing.xl,
-        paddingTop: spacing.xxl + 20,
-    },
-    decorativeCircle1: {
-        position: 'absolute',
-        top: 100,
-        right: -30,
-        width: 120,
-        height: 120,
-        borderRadius: 60,
-        backgroundColor: colors.accent3,
-        opacity: 0.3,
-    },
-    decorativeCircle2: {
-        position: 'absolute',
-        top: 200,
-        left: -40,
-        width: 100,
-        height: 100,
-        borderRadius: 50,
-        backgroundColor: colors.accent4,
-        opacity: 0.25,
-    },
-    decorativeCircle3: {
-        position: 'absolute',
-        bottom: 150,
-        right: 20,
-        width: 80,
-        height: 80,
-        borderRadius: 40,
-        backgroundColor: colors.secondary,
-        opacity: 0.2,
+        paddingTop: spacing.xxl + 40,
+        justifyContent: 'center',
     },
     contentContainer: {
-        zIndex: 1,
+        maxWidth: 480,
+        width: '100%',
+        alignSelf: 'center',
     },
     titleContainer: {
         marginBottom: spacing.xxl,
-        alignItems: 'center',
+        alignItems: 'flex-start',
     },
     title: {
         ...typography.h1,
-        color: colors.white,
+        color: colors.textPrimary,
         marginBottom: spacing.sm,
-        textAlign: 'center',
     },
     subtitle: {
         ...typography.body,
-        color: colors.gray100,
-        textAlign: 'center',
-        opacity: 0.9,
+        color: colors.textSecondary,
     },
     formContainer: {
-        backgroundColor: 'rgba(255, 255, 255, 0.95)',
-        borderRadius: borderRadius.xl,
+        backgroundColor: colors.backgroundCard,
+        borderRadius: borderRadius.lg,
         padding: spacing.xl,
-        ...shadows.large,
+        borderWidth: 1,
+        borderColor: colors.border,
+        ...shadows.medium,
     },
     inputWrapper: {
         marginBottom: spacing.lg,
     },
     inputLabel: {
         ...typography.caption,
-        color: colors.textPrimary,
-        fontWeight: '600',
+        color: colors.textSecondary,
+        fontWeight: '500',
         marginBottom: spacing.sm,
         marginLeft: spacing.xs,
     },
     input: {
-        backgroundColor: colors.white,
+        backgroundColor: colors.backgroundElevated,
         borderRadius: borderRadius.md,
-        paddingVertical: spacing.md,
+        paddingVertical: spacing.md + 2,
         paddingHorizontal: spacing.lg,
         fontSize: 16,
         color: colors.textPrimary,
-        borderWidth: 2,
-        borderColor: colors.gray200,
-        ...shadows.small,
+        borderWidth: 1,
+        borderColor: colors.border,
     },
     forgotPasswordButton: {
         alignSelf: 'flex-end',
@@ -270,7 +202,7 @@ const styles = StyleSheet.create({
     forgotPasswordText: {
         ...typography.caption,
         color: colors.primary,
-        fontWeight: '600',
+        fontWeight: '500',
     },
     loginButton: {
         backgroundColor: colors.primary,
@@ -281,13 +213,14 @@ const styles = StyleSheet.create({
         ...shadows.medium,
     },
     loginButtonDisabled: {
-        backgroundColor: colors.gray400,
-        opacity: 0.6,
+        backgroundColor: colors.gray700,
+        opacity: 0.5,
     },
     loginButtonText: {
         ...typography.bodyBold,
-        color: colors.white,
-        fontSize: 18,
+        color: colors.background,
+        fontSize: 16,
+        fontWeight: '600',
     },
     divider: {
         flexDirection: 'row',
@@ -297,11 +230,11 @@ const styles = StyleSheet.create({
     dividerLine: {
         flex: 1,
         height: 1,
-        backgroundColor: colors.gray300,
+        backgroundColor: colors.border,
     },
     dividerText: {
         ...typography.caption,
-        color: colors.gray500,
+        color: colors.textMuted,
         marginHorizontal: spacing.md,
     },
     signUpButton: {
@@ -309,13 +242,14 @@ const styles = StyleSheet.create({
         borderRadius: borderRadius.md,
         paddingVertical: spacing.md + 4,
         alignItems: 'center',
-        borderWidth: 2,
-        borderColor: colors.secondary,
+        borderWidth: 1,
+        borderColor: colors.borderLight,
     },
     signUpButtonText: {
         ...typography.bodyBold,
-        color: colors.secondary,
+        color: colors.textSecondary,
         fontSize: 16,
+        fontWeight: '500',
     },
 });
 
