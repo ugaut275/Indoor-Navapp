@@ -3,15 +3,31 @@ import React, { useState } from 'react';
 import { useRouter } from 'expo-router';
 import { colors, shadows, typography, spacing, borderRadius } from '../../theme';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import IndoorMap from '../components/IndoorMap';
 
 const MapView = () => {
+    // Grid selection state
+    const [selectedStartGrid, setSelectedStartGrid] = useState(null);
+    const [selectedEndGrid, setSelectedEndGrid] = useState(null);
+    const [selectionMode, setSelectionMode] = useState('start'); // 'start' or 'end'
+
+    // Route state
+    const [routePath, setRoutePath] = useState(null);
+    const [routeDistance, setRouteDistance] = useState(null);
+
+    // Legacy text inputs (keeping for now as fallback)
     const [startLocation, setStartLocation] = useState('');
     const [destination, setDestination] = useState('');
+
+    // Accessibility options
     const [avoidStairs, setAvoidStairs] = useState(false);
     const [wheelchairFriendly, setWheelchairFriendly] = useState(false);
     const [elevatorOnly, setElevatorOnly] = useState(false);
+
+    // Directions
     const [showDirections, setShowDirections] = useState(false);
     const [directions, setDirections] = useState([]);
+
     const router = useRouter();
 
     // Generate sample directions based on locations
@@ -30,19 +46,55 @@ const MapView = () => {
         return sampleDirections;
     };
 
+    // Handle grid selection on map click
+    const handleGridSelect = (gridId, coordinates) => {
+        if (selectionMode === 'start') {
+            setSelectedStartGrid(gridId);
+            setStartLocation(`Grid ${gridId}`);
+            console.log('Selected start grid:', gridId, 'at', coordinates);
+            // Automatically switch to selecting end point
+            setSelectionMode('end');
+        } else {
+            setSelectedEndGrid(gridId);
+            setDestination(`Grid ${gridId}`);
+            console.log('Selected end grid:', gridId, 'at', coordinates);
+        }
+    };
+
+    // Clear selections
+    const handleClearSelections = () => {
+        setSelectedStartGrid(null);
+        setSelectedEndGrid(null);
+        setRoutePath(null);
+        setRouteDistance(null);
+        setShowDirections(false);
+        setDirections([]);
+        setStartLocation('');
+        setDestination('');
+        setSelectionMode('start');
+    };
+
     const handleStartNavigation = () => {
-        if (!startLocation || !destination) {
-            Alert.alert('Error', 'Please enter both start and destination locations');
+        if (selectedStartGrid === null || selectedEndGrid === null) {
+            Alert.alert('Error', 'Please select both start and destination points on the map');
             return;
         }
-        
-        // Generate directions
+
+        // Generate directions (sample for now)
         const generatedDirections = generateDirections();
         setDirections(generatedDirections);
         setShowDirections(true);
-        
-        // In a real app, this would call a routing API
-        console.log('Starting navigation from:', startLocation, 'to:', destination);
+
+        // In a real app, this would call the backend pathfinding API
+        // Example: const pathData = await findPath(selectedStartGrid, selectedEndGrid, {avoidStairs, wheelchairFriendly, elevatorOnly});
+        // setRoutePath(pathData.path);
+        // setRouteDistance(pathData.total_distance);
+
+        // For now, create a mock path (straight line between start and end)
+        const mockPath = [selectedStartGrid, selectedEndGrid];
+        setRoutePath(mockPath);
+
+        console.log('Starting navigation from grid:', selectedStartGrid, 'to:', selectedEndGrid);
         console.log('Accessibility options:', {
             avoidStairs,
             wheelchairFriendly,
@@ -54,17 +106,33 @@ const MapView = () => {
         <View style={styles.container}>
             {/* Map Container */}
             <View style={styles.mapContainer}>
-                <View style={styles.mapContent}>
-                    <View style={styles.mapIconContainer}>
-                        <Ionicons name="map-outline" size={56} color={colors.primary} />
+                <IndoorMap
+                    mapImageSource={require('../../assets/floorplan.png')} // Add your map image here
+                    gridsData={null} // Will be populated with actual grid data from backend
+                    onGridSelect={handleGridSelect}
+                    selectedStartGrid={selectedStartGrid}
+                    selectedEndGrid={selectedEndGrid}
+                    routePath={routePath}
+                    showDebugGrid={false} // Set to true to visualize hex grid for debugging
+                />
+
+                {/* Selection Mode Indicator */}
+                <View style={styles.selectionIndicator}>
+                    <View style={[styles.selectionBadge, selectionMode === 'start' ? styles.selectionBadgeStart : styles.selectionBadgeEnd]}>
+                        <Ionicons
+                            name={selectionMode === 'start' ? 'location-outline' : 'navigate-outline'}
+                            size={16}
+                            color={colors.background}
+                        />
+                        <Text style={styles.selectionText}>
+                            {selectionMode === 'start' ? 'Select Start Point' : 'Select Destination'}
+                        </Text>
                     </View>
-                    <Text style={styles.placeholderText}>Interactive Map</Text>
-                    <Text style={styles.placeholderSubtext}>
-                        {startLocation && destination
-                            ? `Route from ${startLocation} to ${destination}`
-                            : 'Your navigation will appear here'
-                        }
-                    </Text>
+                    {(selectedStartGrid !== null || selectedEndGrid !== null) && (
+                        <TouchableOpacity onPress={handleClearSelections} style={styles.clearButton}>
+                            <Ionicons name="close-circle" size={24} color={colors.error} />
+                        </TouchableOpacity>
+                    )}
                 </View>
             </View>
 
@@ -265,12 +333,50 @@ const styles = StyleSheet.create({
         backgroundColor: colors.background,
     },
     mapContainer: {
-        height: 250,
+        height: 400,
+        backgroundColor: colors.backgroundCard,
+        position: 'relative',
+        borderBottomWidth: 1,
+        borderBottomColor: colors.border,
+    },
+    selectionIndicator: {
+        position: 'absolute',
+        top: spacing.md,
+        left: spacing.md,
+        right: spacing.md,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+    },
+    selectionBadge: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingVertical: spacing.sm,
+        paddingHorizontal: spacing.md,
+        borderRadius: borderRadius.lg,
+        ...shadows.medium,
+        gap: spacing.xs,
+    },
+    selectionBadgeStart: {
+        backgroundColor: colors.success,
+    },
+    selectionBadgeEnd: {
+        backgroundColor: colors.error,
+    },
+    selectionText: {
+        ...typography.caption,
+        color: colors.background,
+        fontWeight: '600',
+        fontSize: 12,
+    },
+    clearButton: {
+        width: 36,
+        height: 36,
+        borderRadius: 18,
         backgroundColor: colors.backgroundCard,
         justifyContent: 'center',
         alignItems: 'center',
-        borderBottomWidth: 1,
-        borderBottomColor: colors.border,
+        ...shadows.medium,
     },
     mapContent: {
         alignItems: 'center',
