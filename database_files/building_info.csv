@@ -1,0 +1,2 @@
+id,building_name,total_map_area,map_width,map_height,wall_area,wall_perimeter,interior_area,hex_area,hex_radius,hex_count,units,created_at,updated_at
+14,Floor Plan,12503.45,101.12,123.64,399.25,810.81,12002.01,41.56,4,342,meters (converted from feet),2025-11-29 11:10:56.573815,2025-11-29 11:10:56.573815

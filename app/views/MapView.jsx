@@ -1,18 +1,40 @@
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ScrollView } from 'react-native';
-import React, { useState } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'expo-router';
 import { colors, shadows, typography, spacing, borderRadius } from '../../theme';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import MapViewer from '../../components/MapViewer';
+import { findPath, createGridCentersMap } from '../../utils/pathfinding';
+import { gridNeighborsData } from '../../utils/gridNeighborsData';
+import { gridData } from '../../utils/gridData';
 
 const MapView = () => {
     const [startLocation, setStartLocation] = useState('');
+    const [startGridId, setStartGridId] = useState(null);
     const [destination, setDestination] = useState('');
+    const [destinationGridId, setDestinationGridId] = useState(null);
     const [avoidStairs, setAvoidStairs] = useState(false);
     const [wheelchairFriendly, setWheelchairFriendly] = useState(false);
     const [elevatorOnly, setElevatorOnly] = useState(false);
     const [showDirections, setShowDirections] = useState(false);
     const [directions, setDirections] = useState([]);
+    const [selectingLocation, setSelectingLocation] = useState(null); // 'start' or 'destination'
+    const [pathGridIds, setPathGridIds] = useState([]);
     const router = useRouter();
+
+    // Create grid centers map for pathfinding
+    const gridCentersMap = useMemo(() => createGridCentersMap(gridData), []);
+
+    // Calculate path when both start and destination are selected
+    useEffect(() => {
+        if (startGridId !== null && destinationGridId !== null) {
+            const path = findPath(startGridId, destinationGridId, gridNeighborsData, gridCentersMap);
+            setPathGridIds(path);
+            console.log('Path calculated:', path.length, 'grids');
+        } else {
+            setPathGridIds([]);
+        }
+    }, [startGridId, destinationGridId, gridCentersMap]);
 
     // Generate sample directions based on locations
     const generateDirections = () => {
@@ -31,8 +53,8 @@ const MapView = () => {
     };
 
     const handleStartNavigation = () => {
-        if (!startLocation || !destination) {
-            Alert.alert('Error', 'Please enter both start and destination locations');
+        if (!startGridId || !destinationGridId) {
+            Alert.alert('Error', 'Please select both start and destination locations on the map');
             return;
         }
         
@@ -41,8 +63,8 @@ const MapView = () => {
         setDirections(generatedDirections);
         setShowDirections(true);
         
-        // In a real app, this would call a routing API
-        console.log('Starting navigation from:', startLocation, 'to:', destination);
+        // In a real app, this would call a routing API with grid IDs
+        console.log('Starting navigation from Grid ID:', startGridId, 'to Grid ID:', destinationGridId);
         console.log('Accessibility options:', {
             avoidStairs,
             wheelchairFriendly,
@@ -50,22 +72,51 @@ const MapView = () => {
         });
     };
 
+    const handleGridSelected = (gridId, mapCoords) => {
+        if (selectingLocation === 'start') {
+            setStartGridId(gridId);
+            setStartLocation(`Grid ${gridId}`);
+            setSelectingLocation(null);
+            Alert.alert('Start Location Selected', `Grid ID: ${gridId}`);
+        } else if (selectingLocation === 'destination') {
+            setDestinationGridId(gridId);
+            setDestination(`Grid ${gridId}`);
+            setSelectingLocation(null);
+            Alert.alert('Destination Selected', `Grid ID: ${gridId}`);
+        } else {
+            // Just show info if not in selection mode
+            Alert.alert('Grid Selected', `Grid ID: ${gridId}\nClick "Select Start" or "Select Destination" first to choose a location.`);
+        }
+    };
+
+    const handleSelectStart = () => {
+        setSelectingLocation('start');
+        Alert.alert('Select Start Location', 'Tap on the map to select your starting point');
+    };
+
+    const handleSelectDestination = () => {
+        setSelectingLocation('destination');
+        Alert.alert('Select Destination', 'Tap on the map to select your destination');
+    };
+
     return (
         <View style={styles.container}>
             {/* Map Container */}
             <View style={styles.mapContainer}>
-                <View style={styles.mapContent}>
-                    <View style={styles.mapIconContainer}>
-                        <Ionicons name="map-outline" size={56} color={colors.primary} />
+                <MapViewer 
+                    onGridSelected={handleGridSelected}
+                    showDebugInfo={false}
+                    pathGridIds={pathGridIds}
+                    startGridId={startGridId}
+                    destinationGridId={destinationGridId}
+                />
+                {selectingLocation && (
+                    <View style={styles.selectionOverlay}>
+                        <Text style={styles.selectionText}>
+                            {selectingLocation === 'start' ? 'Tap to select start location' : 'Tap to select destination'}
+                        </Text>
                     </View>
-                    <Text style={styles.placeholderText}>Interactive Map</Text>
-                    <Text style={styles.placeholderSubtext}>
-                        {startLocation && destination
-                            ? `Route from ${startLocation} to ${destination}`
-                            : 'Your navigation will appear here'
-                        }
-                    </Text>
-                </View>
+                )}
             </View>
 
             {/* Navigation Controls */}
@@ -79,34 +130,56 @@ const MapView = () => {
                     <Text style={styles.controlsSubtitle}>Enter your locations to begin</Text>
                 </View>
 
-                {/* Start Location Input */}
+                {/* Start Location Selection */}
                 <View style={styles.inputContainer}>
                     <View style={styles.inputLabelContainer}>
                         <Ionicons name="location-outline" size={20} color={colors.primary} style={{ marginRight: spacing.sm }} />
                         <Text style={styles.inputLabel}>Start Location</Text>
                     </View>
-                    <TextInput
-                        style={styles.input}
-                        placeholder="Where are you now?"
-                        placeholderTextColor={colors.textMuted}
-                        value={startLocation}
-                        onChangeText={setStartLocation}
-                    />
+                    <View style={styles.locationRow}>
+                        <TextInput
+                            style={[styles.input, styles.inputFlex]}
+                            placeholder="Select on map"
+                            placeholderTextColor={colors.textMuted}
+                            value={startLocation}
+                            editable={false}
+                        />
+                        <TouchableOpacity
+                            style={styles.selectButton}
+                            onPress={handleSelectStart}
+                        >
+                            <Text style={styles.selectButtonText}>Select</Text>
+                        </TouchableOpacity>
+                    </View>
+                    {startGridId && (
+                        <Text style={styles.gridIdText}>Grid ID: {startGridId}</Text>
+                    )}
                 </View>
 
-                {/* Destination Input */}
+                {/* Destination Selection */}
                 <View style={styles.inputContainer}>
                     <View style={styles.inputLabelContainer}>
                         <Ionicons name="navigate-outline" size={20} color={colors.accent2} style={{ marginRight: spacing.sm }} />
                         <Text style={styles.inputLabel}>Destination</Text>
                     </View>
-                    <TextInput
-                        style={styles.input}
-                        placeholder="Where do you want to go?"
-                        placeholderTextColor={colors.textMuted}
-                        value={destination}
-                        onChangeText={setDestination}
-                    />
+                    <View style={styles.locationRow}>
+                        <TextInput
+                            style={[styles.input, styles.inputFlex]}
+                            placeholder="Select on map"
+                            placeholderTextColor={colors.textMuted}
+                            value={destination}
+                            editable={false}
+                        />
+                        <TouchableOpacity
+                            style={styles.selectButton}
+                            onPress={handleSelectDestination}
+                        >
+                            <Text style={styles.selectButtonText}>Select</Text>
+                        </TouchableOpacity>
+                    </View>
+                    {destinationGridId && (
+                        <Text style={styles.gridIdText}>Grid ID: {destinationGridId}</Text>
+                    )}
                 </View>
 
                 {/* Accessibility Options */}
@@ -265,12 +338,11 @@ const styles = StyleSheet.create({
         backgroundColor: colors.background,
     },
     mapContainer: {
-        height: 250,
+        height: 400,
         backgroundColor: colors.backgroundCard,
-        justifyContent: 'center',
-        alignItems: 'center',
         borderBottomWidth: 1,
         borderBottomColor: colors.border,
+        position: 'relative',
     },
     mapContent: {
         alignItems: 'center',
@@ -537,6 +609,48 @@ const styles = StyleSheet.create({
         color: colors.textSecondary,
         fontSize: 16,
         fontWeight: '500',
+    },
+    locationRow: {
+        flexDirection: 'row',
+        gap: spacing.sm,
+    },
+    inputFlex: {
+        flex: 1,
+    },
+    selectButton: {
+        backgroundColor: colors.primary,
+        paddingHorizontal: spacing.lg,
+        paddingVertical: spacing.md + 2,
+        borderRadius: borderRadius.md,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    selectButtonText: {
+        ...typography.bodyBold,
+        color: colors.background,
+        fontSize: 14,
+        fontWeight: '600',
+    },
+    gridIdText: {
+        ...typography.caption,
+        color: colors.primary,
+        marginTop: spacing.xs,
+        fontSize: 12,
+    },
+    selectionOverlay: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        backgroundColor: 'rgba(45, 212, 191, 0.2)',
+        padding: spacing.md,
+        alignItems: 'center',
+        zIndex: 10,
+    },
+    selectionText: {
+        ...typography.bodyBold,
+        color: colors.primary,
+        fontSize: 14,
     },
 });
 
