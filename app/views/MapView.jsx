@@ -1,12 +1,10 @@
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ScrollView } from 'react-native';
-import React, { useState, useEffect, useMemo } from 'react';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ScrollView, ActivityIndicator } from 'react-native';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'expo-router';
 import { colors, shadows, typography, spacing, borderRadius } from '../../theme';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import MapViewer from '../../components/MapViewer';
-import { findPath, createGridCentersMap } from '../../utils/pathfinding';
-import { gridNeighborsData } from '../../utils/gridNeighborsData';
-import { gridData } from '../../utils/gridData';
+import { findPath } from '../../utils/pathfindingApi';
 
 const MapView = () => {
     const [startLocation, setStartLocation] = useState('');
@@ -20,21 +18,49 @@ const MapView = () => {
     const [directions, setDirections] = useState([]);
     const [selectingLocation, setSelectingLocation] = useState(null); // 'start' or 'destination'
     const [pathGridIds, setPathGridIds] = useState([]);
+    const [pathLoading, setPathLoading] = useState(false);
+    const [pathError, setPathError] = useState(null);
     const router = useRouter();
-
-    // Create grid centers map for pathfinding
-    const gridCentersMap = useMemo(() => createGridCentersMap(gridData), []);
 
     // Calculate path when both start and destination are selected
     useEffect(() => {
         if (startGridId !== null && destinationGridId !== null) {
-            const path = findPath(startGridId, destinationGridId, gridNeighborsData, gridCentersMap);
-            setPathGridIds(path);
-            console.log('Path calculated:', path.length, 'grids');
+            calculatePath();
         } else {
             setPathGridIds([]);
+            setPathError(null);
         }
-    }, [startGridId, destinationGridId, gridCentersMap]);
+    }, [startGridId, destinationGridId, avoidStairs, wheelchairFriendly, elevatorOnly]);
+
+    /**
+     * Calculate path using the backend API
+     */
+    const calculatePath = async () => {
+        setPathLoading(true);
+        setPathError(null);
+        
+        try {
+            const path = await findPath(startGridId, destinationGridId, {
+                avoidStairs,
+                wheelchairFriendly,
+                elevatorOnly,
+            });
+            
+            setPathGridIds(path);
+            console.log('Path calculated via API:', path.length, 'grids');
+        } catch (error) {
+            console.error('Pathfinding error:', error);
+            setPathError(error.message || 'Failed to calculate path');
+            setPathGridIds([]);
+            Alert.alert(
+                'Pathfinding Error',
+                error.message || 'Unable to calculate path. Please check your connection and try again.',
+                [{ text: 'OK' }]
+            );
+        } finally {
+            setPathLoading(false);
+        }
+    };
 
     // Generate sample directions based on locations
     const generateDirections = () => {
@@ -115,6 +141,18 @@ const MapView = () => {
                         <Text style={styles.selectionText}>
                             {selectingLocation === 'start' ? 'Tap to select start location' : 'Tap to select destination'}
                         </Text>
+                    </View>
+                )}
+                {pathLoading && (
+                    <View style={styles.pathLoadingOverlay}>
+                        <ActivityIndicator size="large" color={colors.primary} />
+                        <Text style={styles.pathLoadingText}>Calculating path...</Text>
+                    </View>
+                )}
+                {pathError && (
+                    <View style={styles.pathErrorOverlay}>
+                        <Ionicons name="alert-circle" size={20} color={colors.error} />
+                        <Text style={styles.pathErrorText}>Path calculation failed</Text>
                     </View>
                 )}
             </View>
@@ -651,6 +689,39 @@ const styles = StyleSheet.create({
         ...typography.bodyBold,
         color: colors.primary,
         fontSize: 14,
+    },
+    pathLoadingOverlay: {
+        position: 'absolute',
+        top: 10,
+        right: 10,
+        backgroundColor: 'rgba(0, 0, 0, 0.7)',
+        padding: spacing.md,
+        borderRadius: borderRadius.md,
+        alignItems: 'center',
+        zIndex: 10,
+    },
+    pathLoadingText: {
+        ...typography.caption,
+        color: colors.primary,
+        marginTop: spacing.xs,
+        fontSize: 12,
+    },
+    pathErrorOverlay: {
+        position: 'absolute',
+        top: 10,
+        right: 10,
+        backgroundColor: 'rgba(248, 113, 113, 0.9)',
+        padding: spacing.md,
+        borderRadius: borderRadius.md,
+        flexDirection: 'row',
+        alignItems: 'center',
+        zIndex: 10,
+    },
+    pathErrorText: {
+        ...typography.caption,
+        color: colors.background,
+        marginLeft: spacing.xs,
+        fontSize: 12,
     },
 });
 

@@ -1,0 +1,13 @@
+# Render Blueprint for Indoor Navigation API
+services:
+  - type: web
+    name: indoor-nav-api
+    env: node
+    buildCommand: cd backend && npm install && node convertDataFiles.js
+    startCommand: cd backend && npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        generateValue: true
+

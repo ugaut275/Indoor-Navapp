@@ -11,7 +11,7 @@
  * @param {Object} gridCentersMap - Map of gridId -> [x, y] center coordinates
  * @returns {Array} - Array of grid IDs representing the path, or empty array if no path found
  */
-export const findPath = (startId, goalId, neighborsMap, gridCentersMap) => {
+function findPath(startId, goalId, neighborsMap, gridCentersMap) {
     if (startId === goalId) {
         return [startId];
     }
@@ -87,18 +87,23 @@ export const findPath = (startId, goalId, neighborsMap, gridCentersMap) => {
     
     // No path found
     return [];
-};
+}
 
 /**
  * Create a map of gridId -> center coordinates from grid data
  * @param {Array} grids - Array of grid objects with {id, center}
  * @returns {Object} - Map of gridId -> [x, y]
  */
-export const createGridCentersMap = (grids) => {
+function createGridCentersMap(grids) {
     const map = {};
     grids.forEach(grid => {
         map[grid.id] = grid.center;
     });
     return map;
+}
+
+module.exports = {
+    findPath,
+    createGridCentersMap
 };
 

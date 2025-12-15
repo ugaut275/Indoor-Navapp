@@ -96,5 +96,3 @@ export const gridNeighborsData = ${JSON.stringify(neighborsMap, null, 4)};
     process.exit(1);
 }
 
-
-

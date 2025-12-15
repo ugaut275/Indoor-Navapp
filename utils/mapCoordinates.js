@@ -29,5 +29,3 @@ export const mapToScreenCoordinates = (mapX, mapY, mapBounds, imageLayout) => {
     return { x: screenX, y: screenY };
 };
 
-
-
