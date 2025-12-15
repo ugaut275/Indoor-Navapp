@@ -10,11 +10,11 @@ COPY package*.json ./
 # Install dependencies
 RUN npm install --production
 
-# Copy backend files
+# Copy backend files (including pre-converted data files in data/)
 COPY . .
 
-# Convert data files
-RUN node convertDataFiles.js
+# Note: Data files should already be converted and committed in backend/data/
+# If they don't exist, the server will fail with a clear error message
 
 # Expose port
 EXPOSE 3000

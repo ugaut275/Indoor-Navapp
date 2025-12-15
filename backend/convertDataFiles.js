@@ -6,12 +6,43 @@
 const fs = require('fs');
 const path = require('path');
 
-// Read the frontend gridData file
-const gridDataPath = path.join(__dirname, '..', 'utils', 'gridData.js');
-const gridNeighborsPath = path.join(__dirname, '..', 'utils', 'gridNeighborsData.js');
-
 // Create data directory
 const dataDir = path.join(__dirname, 'data');
+const existingGridData = path.join(dataDir, 'gridData.js');
+const existingGridNeighbors = path.join(dataDir, 'gridNeighborsData.js');
+
+// Check if data files already exist
+if (fs.existsSync(existingGridData) && fs.existsSync(existingGridNeighbors)) {
+    console.log('✅ Data files already exist, skipping conversion');
+    process.exit(0);
+}
+
+// Try multiple paths for source files (handles different contexts)
+const possibleGridDataPaths = [
+    path.join(__dirname, '..', 'utils', 'gridData.js'),  // Local development
+    path.join(__dirname, 'utils', 'gridData.js'),         // If utils is copied to backend
+    path.join(process.cwd(), 'utils', 'gridData.js'),    // Absolute from cwd
+];
+
+const possibleGridNeighborsPaths = [
+    path.join(__dirname, '..', 'utils', 'gridNeighborsData.js'),
+    path.join(__dirname, 'utils', 'gridNeighborsData.js'),
+    path.join(process.cwd(), 'utils', 'gridNeighborsData.js'),
+];
+
+// Find existing source files
+const gridDataPath = possibleGridDataPaths.find(p => fs.existsSync(p));
+const gridNeighborsPath = possibleGridNeighborsPaths.find(p => fs.existsSync(p));
+
+if (!gridDataPath || !gridNeighborsPath) {
+    console.error('❌ Error: Could not find source data files');
+    console.error('Tried paths:', possibleGridDataPaths);
+    console.error('Make sure utils/gridData.js and utils/gridNeighborsData.js exist');
+    console.error('Or ensure backend/data/ files are already converted and committed');
+    process.exit(1);
+}
+
+// Create data directory if it doesn't exist
 if (!fs.existsSync(dataDir)) {
     fs.mkdirSync(dataDir, { recursive: true });
 }
