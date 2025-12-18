@@ -1,20 +1,28 @@
-import { View, Text, TextInput, ScrollView, TouchableOpacity, KeyboardAvoidingView, Alert, Platform, Image, StyleSheet } from 'react-native';
+import { View, Text, TextInput, ScrollView, TouchableOpacity, Alert, Image, StyleSheet } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'expo-router';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '../../firebaseConfig.js';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { colors, shadows, typography, spacing, borderRadius } from '../../theme';
 import { Ionicons } from '@expo/vector-icons';
+import DateTimePicker from '@react-native-community/datetimepicker';
 
 const AccountView = () => {
     const [userProfile, setUserProfile] = useState(null);
-    const router = useRouter();
+    const [isEditing, setIsEditing] = useState(false);
+    const [editedProfile, setEditedProfile] = useState(null);
+    const [showDatePicker, setShowDatePicker] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
+    const router = useRouter();
 
     useEffect(() => {
         fetchUserProfile();
     }, []);
+
+    useEffect(() => {
+        if (userProfile) {
+            setEditedProfile({...userProfile});
+        }
+    }, [userProfile]);
 
     const fetchUserProfile = async () => {
         setIsLoading(true);
@@ -22,12 +30,41 @@ const AccountView = () => {
             const userProfileJSON = await AsyncStorage.getItem('currentUser');
             const profile = userProfileJSON ? JSON.parse(userProfileJSON) : null;
             setUserProfile(profile);
-            console.log('User Profile:', profile);
         } catch (error) {
             console.error('Error fetching user profile:', error);
             Alert.alert('Error', 'Failed to load user profile');
         } finally {
             setIsLoading(false);
+        }
+    };
+
+    const handleInputChange = (field, value) => {
+        setEditedProfile(prev => ({
+            ...prev,
+            [field]: value
+        }));
+    };
+
+    const handleSave = async () => {
+        try {
+            // Save to AsyncStorage
+            await AsyncStorage.setItem('currentUser', JSON.stringify(editedProfile));
+            
+            // Update the main userProfiles object
+            const existingUsersJSON = await AsyncStorage.getItem('userProfiles');
+            const existingUsers = existingUsersJSON ? JSON.parse(existingUsersJSON) : {};
+            
+            if (existingUsers[editedProfile.email]) {
+                existingUsers[editedProfile.email] = editedProfile;
+                await AsyncStorage.setItem('userProfiles', JSON.stringify(existingUsers));
+            }
+            
+            setUserProfile(editedProfile);
+            setIsEditing(false);
+            Alert.alert('Success', 'Profile updated successfully!');
+        } catch (error) {
+            console.error('Error saving profile:', error);
+            Alert.alert('Error', 'Failed to update profile');
         }
     };
 
@@ -69,8 +106,30 @@ const AccountView = () => {
                     )}
                     <View style={styles.profileImageBorder} />
                 </View>
-                <Text style={styles.profileName}>{userProfile.fullName}</Text>
+                <Text style={styles.profileName}>
+                    {isEditing ? (
+                        <TextInput
+                            style={[styles.editableInput, {textAlign: 'center', fontSize: 24, marginBottom: 5}]}
+                            value={editedProfile?.fullName || ''}
+                            onChangeText={(text) => handleInputChange('fullName', text)}
+                        />
+                    ) : (
+                        userProfile.fullName
+                    )}
+                </Text>
                 <Text style={styles.profileSubtitle}>Member since {new Date().getFullYear()}</Text>
+                
+                {/* Edit/Save Button */}
+                <TouchableOpacity 
+                    style={styles.editButton}
+                    onPress={isEditing ? handleSave : () => setIsEditing(true)}
+                >
+                    <Ionicons 
+                        name={isEditing ? "checkmark" : "pencil-outline"} 
+                        size={24} 
+                        color={colors.primary} 
+                    />
+                </TouchableOpacity>
             </View>
 
             {/* Profile Details Card */}
@@ -84,22 +143,34 @@ const AccountView = () => {
                     </View>
                     <View style={styles.infoContent}>
                         <Text style={styles.infoLabel}>Email</Text>
-                        <Text style={styles.infoValue}>{userProfile.email}</Text>
+                        <Text style={[styles.infoValue, !isEditing && styles.disabledField]}>
+                            {userProfile.email}
+                        </Text>
                     </View>
                 </View>
 
                 {/* Phone Field */}
-                {userProfile.phone && (
-                    <View style={styles.infoRow}>
-                        <View style={styles.iconContainer}>
-                            <Ionicons name="call-outline" size={22} color={colors.accent2} />
-                        </View>
-                        <View style={styles.infoContent}>
-                            <Text style={styles.infoLabel}>Phone</Text>
-                            <Text style={styles.infoValue}>{userProfile.phone || 'Not provided'}</Text>
-                        </View>
+                <View style={styles.infoRow}>
+                    <View style={styles.iconContainer}>
+                        <Ionicons name="call-outline" size={22} color={colors.accent2} />
                     </View>
-                )}
+                    <View style={styles.infoContent}>
+                        <Text style={styles.infoLabel}>Phone</Text>
+                        {isEditing ? (
+                            <TextInput
+                                style={[styles.infoValue, styles.editableInput]}
+                                value={editedProfile?.phone || ''}
+                                onChangeText={(text) => handleInputChange('phone', text)}
+                                placeholder="Enter phone number"
+                                keyboardType="phone-pad"
+                            />
+                        ) : (
+                            <Text style={styles.infoValue}>
+                                {userProfile.phone || 'Not provided'}
+                            </Text>
+                        )}
+                    </View>
+                </View>
 
                 {/* Age Field */}
                 <View style={styles.infoRow}>
@@ -108,7 +179,20 @@ const AccountView = () => {
                     </View>
                     <View style={styles.infoContent}>
                         <Text style={styles.infoLabel}>Age</Text>
-                        <Text style={styles.infoValue}>{userProfile.age} years old</Text>
+                        {isEditing ? (
+                            <TextInput
+                                style={[styles.infoValue, styles.editableInput]}
+                                value={editedProfile?.age?.toString() || ''}
+                                onChangeText={(text) => handleInputChange('age', text.replace(/[^0-9]/g, ''))}
+                                placeholder="Enter your age"
+                                keyboardType="numeric"
+                                maxLength={3}
+                            />
+                        ) : (
+                            <Text style={styles.infoValue}>
+                                {userProfile.age ? `${userProfile.age} years old` : 'Not specified'}
+                            </Text>
+                        )}
                     </View>
                 </View>
 
@@ -119,9 +203,19 @@ const AccountView = () => {
                     </View>
                     <View style={styles.infoContent}>
                         <Text style={styles.infoLabel}>Physical Condition</Text>
-                        <Text style={styles.infoValue}>
-                            {userProfile.physicalCondition?.charAt(0).toUpperCase() + userProfile.physicalCondition?.slice(1) || 'Not specified'}
-                        </Text>
+                        {isEditing ? (
+                            <TextInput
+                                style={[styles.infoValue, styles.editableInput]}
+                                value={editedProfile?.physicalCondition || ''}
+                                onChangeText={(text) => handleInputChange('physicalCondition', text)}
+                                placeholder="E.g., Good, Limited mobility, etc."
+                            />
+                        ) : (
+                            <Text style={styles.infoValue}>
+                                {userProfile.physicalCondition?.charAt(0)?.toUpperCase() + 
+                                 (userProfile.physicalCondition?.slice(1) || '') || 'Not specified'}
+                            </Text>
+                        )}
                     </View>
                 </View>
 
@@ -132,11 +226,42 @@ const AccountView = () => {
                     </View>
                     <View style={styles.infoContent}>
                         <Text style={styles.infoLabel}>Birthday</Text>
-                        <Text style={styles.infoValue}>
-                            {`${userProfile.birthYear}-${String(userProfile.birthMonth).padStart(2, '0')}-${String(userProfile.birthDay).padStart(2, '0')}`}
-                        </Text>
+                        {isEditing ? (
+                            <TouchableOpacity 
+                                style={[styles.infoValue, styles.editableInput]}
+                                onPress={() => setShowDatePicker(true)}
+                            >
+                                <Text>{`${editedProfile?.birthYear || 'YYYY'}-${String(editedProfile?.birthMonth || '').padStart(2, '0')}-${String(editedProfile?.birthDay || '').padStart(2, '0')}`}</Text>
+                            </TouchableOpacity>
+                        ) : (
+                            <Text style={styles.infoValue}>
+                                {`${userProfile.birthYear || 'YYYY'}-${String(userProfile.birthMonth || '').padStart(2, '0')}-${String(userProfile.birthDay || '').padStart(2, '0')}`}
+                            </Text>
+                        )}
                     </View>
                 </View>
+
+                {showDatePicker && (
+                    <DateTimePicker
+                        value={new Date(
+                            editedProfile.birthYear || new Date().getFullYear(),
+                            (editedProfile.birthMonth || 1) - 1,
+                            editedProfile.birthDay || 1
+                        )}
+                        mode="date"
+                        display="default"
+                        maximumDate={new Date()}
+                        onChange={(event, selectedDate) => {
+                            setShowDatePicker(false);
+                            if (selectedDate) {
+                                const date = new Date(selectedDate);
+                                handleInputChange('birthYear', date.getFullYear());
+                                handleInputChange('birthMonth', date.getMonth() + 1);
+                                handleInputChange('birthDay', date.getDate());
+                            }
+                        }}
+                    />
+                )}
             </View>
 
             {/* Action Buttons */}
@@ -200,6 +325,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: spacing.xl,
         borderBottomWidth: 1,
         borderBottomColor: colors.border,
+        position: 'relative',
     },
     profileImageContainer: {
         position: 'relative',
@@ -239,6 +365,7 @@ const styles = StyleSheet.create({
         ...typography.h2,
         color: colors.textPrimary,
         marginBottom: spacing.xs,
+        textAlign: 'center',
     },
     profileSubtitle: {
         ...typography.caption,
@@ -291,6 +418,17 @@ const styles = StyleSheet.create({
         color: colors.textPrimary,
         fontWeight: '500',
     },
+    editableInput: {
+        borderWidth: 1,
+        borderColor: colors.border,
+        borderRadius: borderRadius.sm,
+        padding: spacing.sm,
+        backgroundColor: colors.background,
+        marginTop: 2,
+    },
+    disabledField: {
+        opacity: 0.7,
+    },
     actionsContainer: {
         paddingHorizontal: spacing.xl,
         paddingBottom: spacing.xxl,
@@ -310,6 +448,15 @@ const styles = StyleSheet.create({
         color: colors.background,
         fontSize: 16,
         fontWeight: '600',
+    },
+    editButton: {
+        position: 'absolute',
+        top: spacing.xl,
+        right: spacing.xl,
+        padding: spacing.sm,
+        backgroundColor: colors.background,
+        borderRadius: 20,
+        ...shadows.small,
     },
 });
 

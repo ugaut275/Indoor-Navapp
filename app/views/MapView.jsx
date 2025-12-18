@@ -1,5 +1,6 @@
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ScrollView, ActivityIndicator } from 'react-native';
-import React, { useState, useEffect } from 'react';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ScrollView, ActivityIndicator, Animated } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { Camera } from 'expo-camera';
 import { useRouter } from 'expo-router';
 import { colors, shadows, typography, spacing, borderRadius } from '../../theme';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
@@ -20,7 +21,12 @@ const MapView = () => {
     const [pathGridIds, setPathGridIds] = useState([]);
     const [pathLoading, setPathLoading] = useState(false);
     const [pathError, setPathError] = useState(null);
+    const [toastMessage, setToastMessage] = useState('');
+    const [showToast, setShowToast] = useState(false);
+    const [showCamera, setShowCamera] = useState(false);
+    const [cameraPermission, setCameraPermission] = useState(null);
     const router = useRouter();
+    const fadeAnim = useRef(new Animated.Value(0)).current;
 
     // Calculate path when both start and destination are selected
     useEffect(() => {
@@ -98,35 +104,95 @@ const MapView = () => {
         });
     };
 
+    const showToastMessage = (message) => {
+        setToastMessage(message);
+        setShowToast(true);
+        
+        Animated.sequence([
+            Animated.timing(fadeAnim, {
+                toValue: 1,
+                duration: 300,
+                useNativeDriver: true,
+            }),
+            Animated.delay(2000),
+            Animated.timing(fadeAnim, {
+                toValue: 0,
+                duration: 300,
+                useNativeDriver: true,
+            }),
+        ]).start(() => {
+            setShowToast(false);
+        });
+    };
+
     const handleGridSelected = (gridId, mapCoords) => {
         if (selectingLocation === 'start') {
             setStartGridId(gridId);
             setStartLocation(`Grid ${gridId}`);
             setSelectingLocation(null);
-            Alert.alert('Start Location Selected', `Grid ID: ${gridId}`);
+            showToastMessage(`Grid ID: ${gridId} selected as start location`);
         } else if (selectingLocation === 'destination') {
             setDestinationGridId(gridId);
             setDestination(`Grid ${gridId}`);
             setSelectingLocation(null);
-            Alert.alert('Destination Selected', `Grid ID: ${gridId}`);
+            showToastMessage(`Grid ID: ${gridId} selected as destination`);
         } else {
-            // Just show info if not in selection mode
-            Alert.alert('Grid Selected', `Grid ID: ${gridId}\nClick "Select Start" or "Select Destination" first to choose a location.`);
+            showToastMessage(`Grid ID: ${gridId} - Click "Select Start" or "Select Destination" first`);
         }
     };
 
     const handleSelectStart = () => {
         setSelectingLocation('start');
-        Alert.alert('Select Start Location', 'Tap on the map to select your starting point');
+        showToastMessage('Tap on the map to select your starting point');
     };
 
     const handleSelectDestination = () => {
         setSelectingLocation('destination');
-        Alert.alert('Select Destination', 'Tap on the map to select your destination');
+        showToastMessage('Tap on the map to select your destination');
+    };
+
+    const handleOpenCamera = async () => {
+        const { status } = await Camera.requestCameraPermissionsAsync();
+        setCameraPermission(status === 'granted');
+        
+        if (status === 'granted') {
+            setShowCamera(true);
+            showToastMessage('Camera opened - QR scanning will be implemented soon');
+            // For now, just show the camera briefly then close it
+            setTimeout(() => {
+                setShowCamera(false);
+            }, 3000);
+        } else {
+            Alert.alert('Permission Denied', 'Camera permission is required to scan QR codes');
+        }
     };
 
     return (
         <View style={styles.container}>
+            {/* Toast Notification */}
+            {showToast && (
+                <Animated.View style={[styles.toastContainer, { opacity: fadeAnim }]}>
+                    <Text style={styles.toastText}>{toastMessage}</Text>
+                </Animated.View>
+            )}
+
+            {/* Camera View */}
+            {showCamera && (
+                <View style={styles.cameraContainer}>
+                    <Camera style={styles.camera} type={Camera.Constants.Type.back}>
+                        <View style={styles.cameraOverlay}>
+                            <Text style={styles.cameraText}>QR Scanner (Coming Soon)</Text>
+                            <TouchableOpacity
+                                style={styles.closeCameraButton}
+                                onPress={() => setShowCamera(false)}
+                            >
+                                <Ionicons name="close-circle" size={40} color="white" />
+                            </TouchableOpacity>
+                        </View>
+                    </Camera>
+                </View>
+            )}
+
             {/* Map Container */}
             <View style={styles.mapContainer}>
                 <MapViewer 
@@ -167,6 +233,15 @@ const MapView = () => {
                     <Text style={styles.controlsTitle}>Plan Your Route</Text>
                     <Text style={styles.controlsSubtitle}>Enter your locations to begin</Text>
                 </View>
+
+                {/* QR Code Scanner Button */}
+                <TouchableOpacity
+                    style={styles.qrButton}
+                    onPress={handleOpenCamera}
+                >
+                    <Ionicons name="qr-code-outline" size={24} color={colors.background} style={{ marginRight: spacing.sm }} />
+                    <Text style={styles.qrButtonText}>Scan QR Code for Grid ID</Text>
+                </TouchableOpacity>
 
                 {/* Start Location Selection */}
                 <View style={styles.inputContainer}>
@@ -376,11 +451,77 @@ const styles = StyleSheet.create({
         backgroundColor: colors.background,
     },
     mapContainer: {
-        height: 400,
+        height: 300,
         backgroundColor: colors.backgroundCard,
         borderBottomWidth: 1,
         borderBottomColor: colors.border,
         position: 'relative',
+    },
+    toastContainer: {
+        position: 'absolute',
+        top: 10,
+        left: 20,
+        right: 20,
+        backgroundColor: 'rgba(0, 0, 0, 0.85)',
+        padding: spacing.md,
+        borderRadius: borderRadius.md,
+        alignItems: 'center',
+        zIndex: 1000,
+        ...shadows.medium,
+    },
+    toastText: {
+        ...typography.body,
+        color: colors.background,
+        fontSize: 14,
+        textAlign: 'center',
+    },
+    qrButton: {
+        backgroundColor: colors.accent2,
+        borderRadius: borderRadius.md,
+        paddingVertical: spacing.md + 4,
+        paddingHorizontal: spacing.lg,
+        alignItems: 'center',
+        marginBottom: spacing.lg,
+        flexDirection: 'row',
+        justifyContent: 'center',
+        ...shadows.medium,
+    },
+    qrButtonText: {
+        ...typography.bodyBold,
+        color: colors.background,
+        fontSize: 16,
+        fontWeight: '600',
+    },
+    cameraContainer: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        zIndex: 2000,
+    },
+    camera: {
+        flex: 1,
+    },
+    cameraOverlay: {
+        flex: 1,
+        backgroundColor: 'transparent',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    cameraText: {
+        ...typography.h2,
+        color: colors.background,
+        marginBottom: spacing.xl,
+        textAlign: 'center',
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        padding: spacing.lg,
+        borderRadius: borderRadius.md,
+    },
+    closeCameraButton: {
+        position: 'absolute',
+        top: 40,
+        right: 20,
     },
     mapContent: {
         alignItems: 'center',
