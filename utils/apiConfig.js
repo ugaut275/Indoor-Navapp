@@ -13,12 +13,8 @@
 // For production, replace with your actual API URL
 const isDevelopment = typeof __DEV__ !== 'undefined' ? __DEV__ : true;
 
-// TODO: Update this URL based on your testing environment
-// For Android emulator, change localhost to 10.0.2.2
-// For physical devices, replace with your computer's local IP address
-export const API_BASE_URL = isDevelopment 
-    ? 'http://localhost:3000/api'  // Development - local backend
-    : 'https://your-api-domain.com/api';  // Production - replace with your actual URL
+// Railway API URL - Production
+export const API_BASE_URL = 'https://indoor-navapp-production.up.railway.app/api';
 
 export const API_ENDPOINTS = {
     PATHFINDING: '/pathfinding',
