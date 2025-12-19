@@ -44,7 +44,6 @@ const PasswordRecovery = () => {
 
             const profile = existingUsers[email];
 
-            // Check if security questions are set
             if (!profile.securityQuestion1 || !profile.securityQuestion2) {
                 Alert.alert('Error', 'This account does not have security questions set up. Please contact support.');
                 setIsLoading(false);
@@ -96,17 +95,11 @@ const PasswordRecovery = () => {
         setIsLoading(true);
 
         try {
-            // First, try to sign in with the old password to get access
-            // Note: We don't have the old password, so we'll need to use a different approach
-            // For local storage, we can update directly, but Firebase requires current auth
-
-            // Update user profile in AsyncStorage
+    
             const existingUsersJSON = await AsyncStorage.getItem('userProfiles');
             const existingUsers = existingUsersJSON ? JSON.parse(existingUsersJSON) : {};
 
             if (existingUsers[email]) {
-                // Note: In a real app, you would update Firebase Authentication password
-                // For now, we'll just update the local storage and inform the user
 
                 existingUsers[email] = {
                     ...existingUsers[email],
