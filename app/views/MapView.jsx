@@ -70,7 +70,6 @@ const MapView = () => {
 
     // Generate sample directions based on locations
     const generateDirections = () => {
-        // Sample directions - in a real app, this would come from a routing API
         const sampleDirections = [
             { step: 1, instruction: 'Head north from your starting point', distance: '0 m', icon: 'walk', iconType: 'ion' },
             { step: 2, instruction: 'Turn right at the main corridor', distance: '25 m', icon: 'arrow-forward', iconType: 'ion' },
@@ -158,7 +157,6 @@ const MapView = () => {
         if (status === 'granted') {
             setShowCamera(true);
             showToastMessage('Camera opened - QR scanning will be implemented soon');
-            // For now, just show the camera briefly then close it
             setTimeout(() => {
                 setShowCamera(false);
             }, 3000);
